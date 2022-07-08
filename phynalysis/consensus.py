@@ -52,9 +52,11 @@ def main(args):
                         ]
                     )
             elif change[0] == 2:  # deletion
+                position = ref_pos
                 ref_pos += change[1]
                 changes.append([seq_id, position, "del" + str(change[1]), 0])
             elif change[0] == 1:  # insertion
+                position = ref_pos
                 qs = read.get_forward_qualities()[read_pos : read_pos + change[1]]
                 insertion = read.seq[read_pos : read_pos + change[1]]
                 read_pos += change[1]
