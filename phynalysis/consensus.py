@@ -5,6 +5,8 @@ target file.
 
 Additionally, print summary statistics of the alignment to stdout.
 
+Original Author: Eva Bons
+
 Usage: python consensus.py [alignment.bam] [reference.fasta] [consensus.fasta]
 """
 import argparse
@@ -16,8 +18,8 @@ import numpy as np
 
 def main(args):
     """Main."""
-    alignment = pysam.AlignmentFile(args.alignment, "rb")
-    with open(args.reference, "rb") as file_descriptor:
+    alignment = pysam.AlignmentFile(args.alignment, "rb", check_sq=False)
+    with open(args.reference, "r") as file_descriptor:
         reference = "".join(file_descriptor.readlines()[1:])
 
     seq_id = 0
@@ -83,7 +85,6 @@ def main(args):
     print(f"Found {len(majority_changes)} majority changes.")
 
     # Create the consensus sequence
-    print("")
     consensus = [i for i in reference]
     for _index, mutation in majority_changes.iterrows():
         if "->" in mutation.mutation:
@@ -95,7 +96,7 @@ def main(args):
             )
 
     consensus = "".join(consensus)
-    with open(args.consensus, "wb") as file_descriptor:
+    with open(args.consensus, "w", encoding="utf8") as file_descriptor:
         file_descriptor.write(f"> consensus of {args.consensus}\n{consensus}")
     print(f"Consensus sequence written to {args.consensus}.")
 
