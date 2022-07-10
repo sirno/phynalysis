@@ -38,7 +38,7 @@ def main(args):
     )
     logging.info("Reading reference...")
     with open(args.reference, "r", encoding="utf8") as file_descriptor:
-        reference = "".join(file_descriptor.readlines()[1:])
+        reference = "".join(file_descriptor.read().splitlines()[1:])
 
     logging.info("Reading alignment...")
     alignment = pysam.AlignmentFile(args.alignment, "rb", check_sq=False)
@@ -64,9 +64,11 @@ def main(args):
         )
         haplotype = ";".join(haplotype)
         haplotype_counter[haplotype] += 1
+    haplotype_counter["consensus"] = n_seq - changes.seq_id.unique().size
     logging.info("Found %s haplotypes.", len(haplotype_counter))
 
     haplotypes = pd.DataFrame(haplotype_counter.items(), columns=["haplotype", "count"])
+    haplotypes["frequencies"] = haplotypes["count"] / n_seq
     haplotypes.sort_values("count", inplace=True, ascending=False)
 
     logging.info("Writing file %s...", args.output_mutations)

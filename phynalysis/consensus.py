@@ -7,7 +7,7 @@ Additionally, print summary statistics of the alignment to log file.
 
 Original Author: Eva Bons
 
-Usage: python consensus.py alignment.bam reference.fasta consensus.fasta
+Usage: python consensus.py reference.fasta alignment.bam consensus.fasta
 """
 import argparse
 import logging
@@ -26,8 +26,8 @@ def main(args):
     )
 
     alignment = pysam.AlignmentFile(args.alignment, "rb", check_sq=False)
-    with open(args.reference, "r") as file_descriptor:
-        reference = "".join(file_descriptor.readlines()[1:])
+    with open(args.reference, "r", encoding="utf8") as file_descriptor:
+        reference = "".join(file_descriptor.read().splitlines()[1:])
 
     seq_id = 0
     changes = []
@@ -116,8 +116,8 @@ def entry():
     """Entry."""
     parser = argparse.ArgumentParser(description="Compute consensus sequence.")
 
-    parser.add_argument("alignment", type=str, help="Alignment file.")
     parser.add_argument("reference", type=str, help="Reference file.")
+    parser.add_argument("alignment", type=str, help="Alignment file.")
     parser.add_argument("consensus", type=str, help="Consensus file (output).")
 
     parser.add_argument("--log-file", type=str, help="Log file.")
