@@ -1,0 +1,55 @@
+movie: m64141e_220629_150222
+ancestors:
+  - bc2005
+  - bc2045
+  - bc2060
+experiments:
+  root:
+    - bc2013
+    - bc2021
+    - bc2029
+    - bc2037
+    - bc2053
+    - bc2061
+    - bc2006
+    - bc2014
+  migration:
+    - bc2022
+    - bc2030
+    - bc2038
+    - bc2046
+    - bc2054
+    - bc2062
+  ctrl_salm:
+    - bc2007
+    - bc2015
+    - bc2023
+    - bc2031
+    - bc2039
+    - bc2047
+    - bc2055
+    - bc2063
+ancestor_reference:
+    bc2013: bc2005
+    bc2021: bc2005
+    bc2029: bc2005
+    bc2037: bc2005
+    bc2053: bc2005
+    bc2061: bc2005
+    bc2006: bc2005
+    bc2014: bc2005
+    bc2022: bc2005
+    bc2030: bc2005
+    bc2038: bc2005
+    bc2046: bc2005
+    bc2054: bc2005
+    bc2062: bc2005
+    bc2007: bc2060
+    bc2015: bc2060
+    bc2023: bc2060
+    bc2031: bc2060
+    bc2039: bc2060
+    bc2047: bc2060
+    bc2055: bc2060
+    bc2063: bc2060
+

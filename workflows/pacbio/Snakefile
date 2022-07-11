@@ -1,0 +1,121 @@
+"""Snakefile for pacbio ccs analysis."""
+
+import pandas as pd
+
+configfile: "config.yaml"
+
+def get_consensus_reference(wildcards):
+    """Get reference for a given barcode."""
+    ancestors = config["ancestor_reference"]
+    if wildcards.barcode in config["ancestor_reference"].keys():
+        return f"pacbio/{ancestors[wildcards.barcode]}--{ancestors[wildcards.barcode]}/{ancestors[wildcards.barcode]}.consensus.fasta"
+    else:
+        return f"pacbio/{wildcards.barcode}--{wildcards.barcode}/{wildcards.barcode}.consensus.fasta"
+
+
+def get_align_reference(wildcards):
+    """Get reference for a given barcode."""
+    ancestors = config["ancestor_reference"]
+    if wildcards.barcode in config["ancestor_reference"].keys():
+        return f"pacbio/{ancestors[wildcards.barcode]}--{ancestors[wildcards.barcode]}/{ancestors[wildcards.barcode]}.consensus.fasta"
+    else:
+        return f"phix174_ncbi.fasta"
+
+def aggregate_keys(keys, output):
+    """Aggregate files selected by key into single file."""
+    barcodes = pd.read_csv("barcodes.csv")
+    haplotypes_dfs = [pd.read_csv(f"pacbio/{barcode}--{barcode}/{barcode}.haplotypes.csv") for barcode in keys]
+    sample_types = [barcodes.loc[barcodes.bar_code == barcode, "sample_name"].values[0] for barcode in keys]
+    haplotypes = pd.concat(haplotypes_dfs, keys=sample_types)
+    haplotypes.index.names = ["sample", "local_id"]
+    haplotypes.reset_index().to_csv(output, index=False)
+
+
+rule all:
+    input:
+        "pacbio/all.haplotypes.csv",
+        expand("pacbio/{experiment}.haplotypes.csv", experiment=config["experiments"].keys()),
+        expand("pacbio/{barcode}--{barcode}/{barcode}.haplotypes.csv", barcode=config["ancestors"]),
+
+
+rule pbmm2_align:
+    input:
+        get_align_reference,
+        expand("pacbio/{{barcode}}--{{barcode}}/{movie}.hifi_reads.{{barcode}}--{{barcode}}.bam", movie=config["movie"]),
+    output:
+        "pacbio/{barcode}--{barcode}/{barcode}.aligned.bam",
+    log:
+        "logs/pbmm2_align/{barcode}.log",
+    params:
+        preset="CCS",
+        extra="--sort",
+        log_level="INFO",
+    conda:
+        "pacbio"
+    shell:
+        """
+        pbmm2 align {input} {output} \
+            --preset {params.preset} \
+            --log-level {params.log_level} \
+            {params.extra} > {log} 2>&1
+        """
+
+
+rule index:
+    input:
+        "pacbio/{barcode}--{barcode}/{barcode}.aligned.bam",
+    output:
+        "pacbio/{barcode}--{barcode}/{barcode}.aligned.bam.bai",
+    log:
+        "logs/index/{barcode}.log",
+    shell:
+        """
+        samtools index {input} > {log} 2>&1
+        """
+
+rule ancestor_consensus:
+    input:
+        reference="phix174_ncbi.fasta",
+        alignment="pacbio/{barcode}--{barcode}/{barcode}.aligned.bam",
+        index="pacbio/{barcode}--{barcode}/{barcode}.aligned.bam.bai",
+    output:
+        "pacbio/{barcode}--{barcode}/{barcode}.consensus.fasta"
+    log:
+        "logs/consensus/{barcode}.log"
+    shell:
+        "phynalysis-consensus {input.reference} {input.alignment} {output} --log-file {log}"
+
+
+rule haplotype_analysis:
+    input:
+        reference=get_consensus_reference,
+        alignment="pacbio/{barcode}--{barcode}/{barcode}.aligned.bam",
+        index="pacbio/{barcode}--{barcode}/{barcode}.aligned.bam.bai",
+    output:
+        "pacbio/{barcode}--{barcode}/{barcode}.mutations.csv",
+        "pacbio/{barcode}--{barcode}/{barcode}.haplotypes.csv",
+    log:
+        "logs/haplotype_analysis/{barcode}.log"
+    shell:
+        "phynalysis-haplotypes {input.reference} {input.alignment} {output} --log-file {log}"
+
+
+rule aggregate_all:
+    input:
+        "barcodes.csv",
+        expand("pacbio/{barcode}--{barcode}/{barcode}.haplotypes.csv", barcode=config["ancestor_reference"].keys())
+    output:
+        "pacbio/all.haplotypes.csv"
+    run:
+        aggregate_keys(config["ancestor_reference"].keys(), output[0])
+
+
+rule aggregate_experiment:
+    input:
+        "barcodes.csv",
+        lambda wildcards: expand("pacbio/{barcode}--{barcode}/{barcode}.haplotypes.csv", barcode=config["experiment"][wildcards.experiment]),
+    output:
+        "pacbio/{experiment}.haplotypes.csv"
+    run:
+        aggregate_keys(config[wildcards.experiment], output[0])
+
