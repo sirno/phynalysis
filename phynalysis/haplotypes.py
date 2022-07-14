@@ -68,7 +68,7 @@ def main(args):
     logging.info("Found %s haplotypes.", len(haplotype_counter))
 
     haplotypes = pd.DataFrame(haplotype_counter.items(), columns=["haplotype", "count"])
-    haplotypes["frequencies"] = haplotypes["count"] / n_seq
+    # haplotypes["frequencies"] = haplotypes["count"] / n_seq
     haplotypes.sort_values("count", inplace=True, ascending=False)
 
     logging.info("Writing file %s...", args.output_mutations)
