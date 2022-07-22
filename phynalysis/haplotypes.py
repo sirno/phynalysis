@@ -151,8 +151,6 @@ def entry():
         "--length-threshold", type=int, default=100, help="Length threshold"
     )
 
-    parser.add_argument("--n-samples", type=int, default=0, help="Number of samples")
-
     parser.add_argument("--log-file", help="Log file")
 
     main(parser.parse_args())
