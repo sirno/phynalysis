@@ -19,56 +19,64 @@ import logging
 from collections import Counter
 
 import pysam
+
 import pandas as pd
+import numpy as np
 
 
-def get_changes(reference, alignment, quality_threshold, length_threshold):
+def get_changes_from_read(reference, seq_id, read, length_threshold):
+    changes = []
+    if abs(len(read.seq) - len(reference)) > length_threshold:
+        return changes
+    read_pos = 0
+    ref_pos = read.reference_start
+    for cigar in read.cigar:
+        if cigar[0] == 7:  # match
+            read_pos += cigar[1]
+            ref_pos += cigar[1]
+        elif cigar[0] == 8:  # mismatch
+            qs = read.get_forward_qualities()[read_pos : read_pos + cigar[1]]
+            ref_here = reference[ref_pos : ref_pos + cigar[1]]
+            read_here = read.seq[read_pos : read_pos + cigar[1]]
+            position = ref_pos
+            read_pos += cigar[1]
+            ref_pos += cigar[1]
+            for mismatch in range(cigar[1]):
+                if ref_here[mismatch] != read_here[mismatch]:
+                    changes.append(
+                        [
+                            seq_id,
+                            position + mismatch,
+                            ref_here[mismatch] + "->" + read_here[mismatch],
+                            qs[mismatch],
+                        ]
+                    )
+        elif cigar[0] == 2:  # deletion
+            changes.append([seq_id, ref_pos, "del" + str(cigar[1]), 0])
+            ref_pos += cigar[1]
+        elif cigar[0] == 1:  # insertion
+            qs = read.get_forward_qualities()[read_pos : read_pos + cigar[1]]
+            insertion = read.seq[read_pos : read_pos + cigar[1]]
+            changes.append([seq_id, ref_pos, "i" + insertion, np.mean(qs)])
+            read_pos += cigar[1]
+        elif cigar[0] == 4:  # soft clipping
+            read_pos += cigar[1]
+        else:
+            raise IndexError(f"Unknown cigar operation: {cigar[0]}")
+    return changes
+
+
+def get_changes_from_alignment(
+    reference, alignment, quality_threshold, length_threshold
+):
     """Retrieve all changes in an alignment."""
     changes = []
     for seq_id, read in enumerate(alignment):
-        if abs(len(read.seq) - len(reference)) > length_threshold:
-            continue
-        read_pos = 0
-        ref_pos = read.reference_start
-        for c in read.cigar:
-            if c[0] == 7:  # match
-                read_pos += c[1]
-                ref_pos += c[1]
-            elif c[0] == 8:  # mismatch
-                qs = read.get_forward_qualities()[read_pos : read_pos + c[1]]
-                ref_here = reference[ref_pos : ref_pos + c[1]]
-                read_here = read.seq[read_pos : read_pos + c[1]]
-                position = ref_pos
-                read_pos += c[1]
-                ref_pos += c[1]
-                for mismatch in range(c[1]):
-                    if ref_here[mismatch] != read_here[mismatch]:
-                        changes.append(
-                            [
-                                seq_id,
-                                position + mismatch,
-                                ref_here[mismatch] + "->" + read_here[mismatch],
-                                qs[mismatch],
-                            ]
-                        )
-            elif c[0] == 2:  # deletion
-                changes.append([seq_id, ref_pos, "del" + str(c[1]), 0])
-                ref_pos += c[1]
-            elif c[0] == 1:  # insertion
-                qs = read.get_forward_qualities()[read_pos : read_pos + c[1]]
-                insertion = read.seq[read_pos : read_pos + c[1]]
-                changes.append([seq_id, ref_pos, "i" + insertion, np.mean(qs)])
-                read_pos += c[1]
-            elif c[0] == 4:  # soft clipping
-                read_pos += c[1]
-            else:
-                raise IndexError(f"Unknown cigar operation: {c[0]}")
+        changes += get_changes_from_read(reference, seq_id, read, length_threshold)
 
-    changes = pd.DataFrame(
-        changes, columns=["seq_id", "position", "mutation", "quality"]
-    )
+    df = pd.DataFrame(changes, columns=["seq_id", "position", "mutation", "quality"])
     n_seq = seq_id
-    changes_qc = changes[changes["quality"] > quality_threshold]
+    changes_qc = df[df["quality"] > quality_threshold]
     return changes_qc, n_seq
 
 
@@ -90,7 +98,7 @@ def main(args):
 
     logging.info("Reading alignment...")
     alignment = pysam.AlignmentFile(args.alignment, "rb", check_sq=False)
-    changes, n_seq = get_changes(
+    changes, n_seq = get_changes_from_alignment(
         reference,
         alignment,
         quality_threshold=args.quality_threshold,
@@ -142,6 +150,8 @@ def entry():
     parser.add_argument(
         "--length-threshold", type=int, default=100, help="Length threshold"
     )
+
+    parser.add_argument("--n-samples", type=int, default=0, help="Number of samples")
 
     parser.add_argument("--log-file", help="Log file")
 
