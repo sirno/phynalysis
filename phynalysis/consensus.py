@@ -16,6 +16,8 @@ import pysam
 import pandas as pd
 import numpy as np
 
+from .utils import changes_from_alignment
+
 
 def main(args):
     """Main."""
@@ -29,54 +31,7 @@ def main(args):
     with open(args.reference, "r", encoding="utf8") as file_descriptor:
         reference = "".join(file_descriptor.read().splitlines()[1:])
 
-    seq_id = 0
-    changes = []
-
-    logging.info("Computing consensus sequence...")
-
-    # collect all the changes
-    for seq_id, read in enumerate(alignment):
-        read_pos = 0
-        ref_pos = read.reference_start
-        for change in read.cigar:
-            if change[0] == 7:  # match
-                read_pos += change[1]
-                ref_pos += change[1]
-            elif change[0] == 8:  # mismatch
-                qs = read.get_forward_qualities()[read_pos : read_pos + change[1]]
-                ref_here = reference[ref_pos : ref_pos + change[1]]
-                read_here = read.seq[read_pos : read_pos + change[1]]
-                position = ref_pos
-                read_pos += change[1]
-                ref_pos += change[1]
-                for mismatch in range(change[1]):
-                    changes.append(
-                        [
-                            seq_id,
-                            position + mismatch,
-                            ref_here[mismatch] + "->" + read_here[mismatch],
-                            qs[mismatch],
-                        ]
-                    )
-            elif change[0] == 2:  # deletion
-                position = ref_pos
-                ref_pos += change[1]
-                changes.append([seq_id, position, "del" + str(change[1]), 0])
-            elif change[0] == 1:  # insertion
-                position = ref_pos
-                qs = read.get_forward_qualities()[read_pos : read_pos + change[1]]
-                insertion = read.seq[read_pos : read_pos + change[1]]
-                read_pos += change[1]
-                changes.append([seq_id, position, "i" + insertion, np.mean(qs)])
-            elif change[0] == 4:  # soft clipping
-                read_pos += change[1]
-            else:
-                raise IndexError(f"Cigar operation '{change[0]}' not implemented.")
-
-    changes = pd.DataFrame(
-        changes, columns=["seq_id", "position", "mutation", "quality"]
-    )
-    n_seq = seq_id
+    changes, n_seq = changes_from_alignment(reference, alignment, 0, -1)
 
     logging.info(f"Found {len(changes)} mutations in {n_seq} sequences.")
 
