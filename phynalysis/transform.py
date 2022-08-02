@@ -17,8 +17,10 @@ def main(args):
     haplotypes = haplotypes_data.groupby("haplotype")
 
     # sequences = np.empty(len(haplotypes), dtype=object)
+    ids = []
     sequences = []
     for haplotype, _haplotype_data in tqdm(haplotypes, desc="haplotype_parsing"):
+        ids.append(haplotype)
         sequence = [r for r in reference]
         for change in haplotype.split(";"):
             if change == "consensus":
@@ -36,14 +38,18 @@ def main(args):
         sequences.append(sequence)
 
     longest = [
-        max(map(lambda x: len(x), [s[i] for s in sequences]))
+        max(map(len, [s[i] for s in sequences]))
         for i in tqdm(range(len(reference)), desc="gap_detection")
     ]
     sequences_lip = [
         "".join([s.ljust(l, "-") for s, l in zip(s, longest)])
         for s in tqdm(sequences, desc="gap_inclusion")
     ]
-    print(sequences_lip[0])
+
+    longest_haplotype = max(map(len, ids))
+    print(len(ids), len(sequences_lip[0]))
+    for name, sequence in zip(ids, sequences_lip):
+        print(f"{name.ljust(longest_haplotype)} {sequence}")
 
 
 def entry():
@@ -52,6 +58,7 @@ def entry():
         description="Transform haplotype data to alignment format."
     )
     parser.add_argument("--input", type=str, help="Input file.")
+    parser.add_argument("--output", type=str, help="Output file.")
     parser.add_argument("--reference", type=str, help="Reference file.")
     parser.add_argument("--log", default="INFO")
 
