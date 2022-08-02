@@ -69,4 +69,4 @@ def changes_from_alignment(reference, alignment, quality_threshold, length_thres
     if quality_threshold > 0:
         return df[df["quality"] > quality_threshold], n_seq
 
-    return changes, n_seq
+    return df, n_seq

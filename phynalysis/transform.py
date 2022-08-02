@@ -10,12 +10,15 @@ from tqdm import tqdm
 
 def main(args):
     """Main."""
-    haplotypes = pd.read_csv(args.input)
+    haplotypes_data = pd.read_csv(args.input)
     with open(args.reference, "r", encoding="utf8") as file_descriptor:
         reference = "".join(file_descriptor.read().splitlines()[1:])
 
+    haplotypes = haplotypes_data.groupby("haplotype")
+
+    # sequences = np.empty(len(haplotypes), dtype=object)
     sequences = []
-    for haplotype, haplotype_data in haplotypes.groupby("haplotype"):
+    for haplotype, _haplotype_data in tqdm(haplotypes, desc="haplotype_parsing"):
         sequence = [r for r in reference]
         for change in haplotype.split(";"):
             if change == "consensus":
@@ -29,16 +32,18 @@ def main(args):
                 sequence[position] += mutation[1:]
             else:
                 NotImplementedError(f"Unknown mutation type {mutation}.")
+        # sequences[idx] = sequence
         sequences.append(sequence)
 
-    sequences_lip = np.empty(len(sequences), dtype=np.string_)
-    for i in tqdm(range(len(reference))):
-        at_position = [s[i] for s in sequences]
-        longest = max(map(lambda x: len(x), at_position))
-        strings_at_position = np.array([s.ljust(longest, "-") for s in at_position])
-        sequences_lip = np.char.add(sequences_lip, strings_at_position)
-
-    print(sequences_lip)
+    longest = [
+        max(map(lambda x: len(x), [s[i] for s in sequences]))
+        for i in tqdm(range(len(reference)), desc="gap_detection")
+    ]
+    sequences_lip = [
+        "".join([s.ljust(l, "-") for s, l in zip(s, longest)])
+        for s in tqdm(sequences, desc="gap_inclusion")
+    ]
+    print(sequences_lip[0])
 
 
 def entry():
