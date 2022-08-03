@@ -72,12 +72,12 @@ def main(args):
         with open(args.output, "w", encoding="utf8") as file_descriptor:
             file_descriptor.write(len(ids), len(sequences_lip[0]))
             for name, sequence in zip(ids, sequences_lip):
-                name = name.replace(":", "|").ljust(longest_haplotype)
+                name = name.replace(":", "|").replace(";", ".").ljust(longest_haplotype)
                 file_descriptor.write(f"{name} {sequence}")
     else:
         print(len(df), len(sequences_lip[0]))
         for name, sequence in zip(ids, sequences_lip):
-            name = name.replace(":", "|").ljust(longest_haplotype)
+            name = name.replace(":", "|").replace(";", ".").ljust(longest_haplotype)
             print(f"{name} {sequence}")
 
 

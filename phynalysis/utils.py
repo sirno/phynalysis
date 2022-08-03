@@ -15,6 +15,22 @@ def haplotype_to_mutations(haplotype: str):
     return mutations
 
 
+def haplotype_to_set(haplotype):
+    """Convert haplotype to list."""
+    if haplotype == "consensus":
+        return set()
+
+    changes = [changes.split(":") for changes in haplotype.split(";")]
+    return set([(int(change[0]), change[1]) for change in changes])
+
+
+def set_to_haplotype(set_):
+    """Convert a set of mutations to a haplotype."""
+    if not set_:
+        return "consensus"
+    return ";".join(f"{pos}:{mutation}" for pos, mutation in set_)
+
+
 def changes_from_read(reference, seq_id, read, length_threshold):
     changes = []
     if length_threshold >= 0 and abs(len(read.seq) - len(reference)) > length_threshold:
