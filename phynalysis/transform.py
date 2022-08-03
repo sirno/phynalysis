@@ -1,6 +1,7 @@
 """Transform haplotype data to alignment format."""
 
 import argparse
+import logging
 
 import pandas as pd
 import numpy as np
@@ -10,18 +11,27 @@ from tqdm import tqdm
 
 def main(args):
     """Main."""
+    logging.basicConfig(
+        filename=args.log_file,
+        level=logging.INFO,
+        format="%(levelname)s:%(asctime)s %(message)s",
+    )
+
     haplotypes_data = pd.read_csv(args.input)
     with open(args.reference, "r", encoding="utf8") as file_descriptor:
         reference = "".join(file_descriptor.read().splitlines()[1:])
 
     haplotypes = haplotypes_data.groupby("haplotype")
+    logging.info("Loaded %s haplotypes.", len(haplotypes))
 
-    # sequences = np.empty(len(haplotypes), dtype=object)
     ids = []
     sequences = []
-    for haplotype, _haplotype_data in tqdm(haplotypes, desc="haplotype_parsing"):
-        ids.append(haplotype)
-        sequence = [r for r in reference]
+    counts = []
+    for haplotype, haplotype_data in tqdm(haplotypes, desc="haplotype_parsing"):
+        # discard haplotypes with insertions
+        if "i" in haplotype:
+            continue
+        sequence = list(reference)
         for change in haplotype.split(";"):
             if change == "consensus":
                 break
@@ -34,22 +44,41 @@ def main(args):
                 sequence[position] += mutation[1:]
             else:
                 NotImplementedError(f"Unknown mutation type {mutation}.")
-        # sequences[idx] = sequence
-        sequences.append(sequence)
+        if sequence:
+            ids.append(haplotype)
+            sequences.append(sequence)
+            counts.append(haplotype_data["count"].sum())
+
+    logging.info("Parsed %s sequences.", len(sequences))
+
+    df = pd.DataFrame({"id": ids, "sequence": sequences, "count": counts})
+
+    if args.n_samples:
+        df = df.sample(n=args.n_samples, weights="count")
 
     longest = [
-        max(map(len, [s[i] for s in sequences]))
+        max(map(len, [s[i] for s in df.sequence]))
         for i in tqdm(range(len(reference)), desc="gap_detection")
     ]
     sequences_lip = [
         "".join([s.ljust(l, "-") for s, l in zip(s, longest)])
-        for s in tqdm(sequences, desc="gap_inclusion")
+        for s in tqdm(df.sequence, desc="gap_inclusion")
     ]
 
+    logging.info("Converted %s sequences.", len(sequences_lip))
+
     longest_haplotype = max(map(len, ids))
-    print(len(ids), len(sequences_lip[0]))
-    for name, sequence in zip(ids, sequences_lip):
-        print(f"{name.ljust(longest_haplotype)} {sequence}")
+    if args.output:
+        with open(args.output, "w", encoding="utf8") as file_descriptor:
+            file_descriptor.write(len(ids), len(sequences_lip[0]))
+            for name, sequence in zip(ids, sequences_lip):
+                name = name.replace(":", "|").ljust(longest_haplotype)
+                file_descriptor.write(f"{name} {sequence}")
+    else:
+        print(len(df), len(sequences_lip[0]))
+        for name, sequence in zip(ids, sequences_lip):
+            name = name.replace(":", "|").ljust(longest_haplotype)
+            print(f"{name} {sequence}")
 
 
 def entry():
@@ -60,8 +89,9 @@ def entry():
     parser.add_argument("--input", type=str, help="Input file.")
     parser.add_argument("--output", type=str, help="Output file.")
     parser.add_argument("--reference", type=str, help="Reference file.")
-    parser.add_argument("--log", default="INFO")
 
-    _args = parser.parse_args()
+    parser.add_argument("--n-samples", type=int, default=0, help="Number of samples.")
 
-    main(_args)
+    parser.add_argument("--log-file", type=str, help="Log file.")
+
+    main(parser.parse_args())
