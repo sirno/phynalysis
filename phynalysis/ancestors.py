@@ -30,10 +30,10 @@ def main(args):
     ancestor_haplotypes = ancestors.haplotype.apply(haplotype_to_set)
     descendant_haplotypes = descendants.haplotype.apply(haplotype_to_set)
 
-    descendant_ancestors = [
-        set_to_haplotype(find_ancestor(haplotype, ancestor_haplotypes))
-        for haplotype in tqdm(descendant_haplotypes)
-    ]
+    tqdm.pandas()
+    descendant_ancestors = descendant_haplotypes.progress_apply(
+        lambda h: set_to_haplotype(find_ancestor(h, ancestor_haplotypes))
+    )
     data["closest_ancestor"] = descendant_ancestors
     data.to_csv(args.output, index=False)
 
