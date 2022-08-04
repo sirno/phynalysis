@@ -42,8 +42,8 @@ def entry():
     """Entry."""
     parser = argparse.ArgumentParser(description="")
 
-    parser.add_argument("--input", type=str, help="Input file.")
-    parser.add_argument("--output", type=str, help="Output file.")
+    parser.add_argument("input", type=str, help="Input file.")
+    parser.add_argument("output", type=str, help="Output file.")
 
     parser.add_argument("--log", default="INFO")
 

@@ -88,7 +88,7 @@ def entry():
     parser.add_argument("alignment", help="Alignment file")
 
     parser.add_argument("output_mutations", help="Output file for mutations")
-    parser.add_argument("output_haplotypes", help="Output file for mutations")
+    parser.add_argument("output_haplotypes", help="Output file for haplotypes")
 
     parser.add_argument(
         "--quality-threshold", type=int, default=47, help="Quality threshold"
