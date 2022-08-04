@@ -43,7 +43,7 @@ def filter_haplotype_counts(data, min_counts):
 
 def filter_haplotype_frequency(data, min_frequency):
     """Filter haplotype data by minimum frequency."""
-    frequencies = compute_frequencies(data)
+    frequencies = compute_haplotype_frequency(data)
     return data.loc[frequencies.ge(min_frequency)].copy()
 
 
