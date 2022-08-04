@@ -48,6 +48,7 @@ def filter_haplotype_frequency(data, min_frequency):
 
 
 def changes_from_read(reference, seq_id, read, length_threshold):
+    """Retrieve list of changes from single read."""
     changes = []
     if length_threshold >= 0 and abs(len(read.seq) - len(reference)) > length_threshold:
         return changes

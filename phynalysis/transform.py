@@ -45,7 +45,7 @@ def main(args):
             else:
                 NotImplementedError(f"Unknown mutation type {mutation}.")
         if sequence:
-            ids.append(haplotype)
+            ids.append("_".join(haplotype_data.sample_name) + "_" + haplotype)
             sequences.append(sequence)
             counts.append(haplotype_data["count"].sum())
 
