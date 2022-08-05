@@ -3,34 +3,6 @@ import numpy as np
 import pandas as pd
 
 
-def haplotype_to_mutations(haplotype: str):
-    """Get the mutations in a haplotype."""
-    if haplotype == "consensus":
-        return []
-    mutation_strings = haplotype.split(";")
-    mutations = []
-    for mutation in mutation_strings:
-        split = mutation.split(":")
-        mutations.append((int(split[0]), split[1]))
-    return mutations
-
-
-def haplotype_to_set(haplotype):
-    """Convert haplotype to list."""
-    if haplotype == "consensus":
-        return set()
-
-    changes = [changes.split(":") for changes in haplotype.split(";")]
-    return set([(int(change[0]), change[1]) for change in changes])
-
-
-def set_to_haplotype(set_):
-    """Convert a set of mutations to a haplotype."""
-    if not set_:
-        return "consensus"
-    return ";".join(f"{pos}:{mutation}" for pos, mutation in set_)
-
-
 def compute_haplotype_frequency(data):
     """Compute frequencies for haplotype data."""
     return data["count"].div(data.groupby("sample_name")["count"].sum(), axis=0)

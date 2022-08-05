@@ -8,6 +8,8 @@ import numpy as np
 
 from tqdm import tqdm
 
+from ..transform import haplotypes_to_phylip
+
 
 def main(args):
     """Main."""
@@ -21,49 +23,24 @@ def main(args):
     with open(args.reference, "r", encoding="utf8") as file_descriptor:
         reference = "".join(file_descriptor.read().splitlines()[1:])
 
-    haplotypes = haplotypes_data.groupby("haplotype")
-    logging.info("Loaded %s haplotypes.", len(haplotypes))
+    if args.filter_insertions:
+        haplotype_data = haplotype_data[not haplotype_data.haplotype.str.contains("i")]
 
-    ids = []
-    sequences = []
-    counts = []
-    for haplotype, haplotype_data in tqdm(haplotypes, desc="haplotype_parsing"):
-        # discard haplotypes with insertions
-        if "i" in haplotype:
-            continue
-        sequence = list(reference)
-        for change in haplotype.split(";"):
-            if change == "consensus":
-                break
-            split = change.split(":")
-            position = int(split[0])
-            mutation = split[1]
-            if "->" in mutation:
-                sequence[position] = mutation[-1]
-            elif mutation.startswith("i"):
-                sequence[position] += mutation[1:]
-            else:
-                NotImplementedError(f"Unknown mutation type {mutation}.")
-        if sequence:
-            ids.append("_".join(haplotype_data.sample_name) + "_" + haplotype)
-            sequences.append(sequence)
-            counts.append(haplotype_data["count"].sum())
+    haplotype_groups = haplotypes_data.groupby("haplotype")
+    logging.info("Loaded %s haplotypes.", len(haplotype_groups))
 
-    logging.info("Parsed %s sequences.", len(sequences))
+    haplotype_counts = haplotype_groups["count"].sum()
+    ids = haplotype_groups.apply(
+        lambda group: "_".join(group.sample_name) + "_" + group.name
+    )
+    haplotypes = haplotype_groups.apply(lambda group: group.name)
 
-    df = pd.DataFrame({"id": ids, "sequence": sequences, "count": counts})
+    df = pd.DataFrame({"id": ids, "haplotype": haplotypes, "count": haplotype_counts})
 
     if args.n_samples:
-        df = df.sample(n=args.n_samples, weights="count")
+        df.sample(args.n_samples, weights="count", random_state=42)
 
-    longest = [
-        max(map(len, [s[i] for s in df.sequence]))
-        for i in tqdm(range(len(reference)), desc="gap_detection")
-    ]
-    sequences_lip = [
-        "".join([s.ljust(l, "-") for s, l in zip(s, longest)])
-        for s in tqdm(df.sequence, desc="gap_inclusion")
-    ]
+    sequences_lip = haplotypes_to_phylip(reference, df["haplotype"], df["id"])
 
     logging.info("Converted %s sequences.", len(sequences_lip))
 
@@ -91,6 +68,9 @@ def entry():
     parser.add_argument("output", type=str, help="Output file.")
 
     parser.add_argument("--n-samples", type=int, default=0, help="Number of samples.")
+    parser.add_argument(
+        "--filter-insertions", action="store_true", help="Filter insertions."
+    )
 
     parser.add_argument("--log-file", type=str, help="Log file.")
 
