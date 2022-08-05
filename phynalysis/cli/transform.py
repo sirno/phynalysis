@@ -38,24 +38,18 @@ def main(args):
     df = pd.DataFrame({"id": ids, "haplotype": haplotypes, "count": haplotype_counts})
 
     if args.n_samples:
-        df.sample(args.n_samples, weights="count", random_state=42)
+        df = df.sample(args.n_samples, weights="count", random_state=42)
 
     sequences_lip = haplotypes_to_phylip(reference, df["haplotype"], df["id"])
 
     logging.info("Converted %s sequences.", len(sequences_lip))
 
     longest_haplotype = max(map(len, ids))
-    if args.output:
-        with open(args.output, "w", encoding="utf8") as file_descriptor:
-            file_descriptor.write(len(ids), len(sequences_lip[0]))
-            for name, sequence in zip(ids, sequences_lip):
-                name = name.replace(":", "|").replace(";", ".").ljust(longest_haplotype)
-                file_descriptor.write(f"{name} {sequence}")
-    else:
-        print(len(df), len(sequences_lip[0]))
+    with open(args.output, "w", encoding="utf8") as file_descriptor:
+        file_descriptor.write(f"{len(ids)} {len(sequences_lip[0])}\n")
         for name, sequence in zip(ids, sequences_lip):
             name = name.replace(":", "|").replace(";", ".").ljust(longest_haplotype)
-            print(f"{name} {sequence}")
+            file_descriptor.write(f"{name} {sequence}\n")
 
 
 def entry():
