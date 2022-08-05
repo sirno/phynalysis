@@ -5,7 +5,7 @@ import pandas as pd
 
 from tqdm import tqdm
 
-from .utils import haplotype_to_set, set_to_haplotype
+from ..utils import haplotype_to_set, set_to_haplotype
 
 
 def haplotype_distance(haplotype1, haplotype2):

@@ -16,7 +16,7 @@ import pysam
 import pandas as pd
 import numpy as np
 
-from .utils import changes_from_alignment
+from ..utils import changes_from_alignment
 
 
 def main(args):
