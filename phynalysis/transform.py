@@ -86,9 +86,9 @@ def entry():
     parser = argparse.ArgumentParser(
         description="Transform haplotype data to alignment format."
     )
-    parser.add_argument("--input", type=str, help="Input file.")
-    parser.add_argument("--output", type=str, help="Output file.")
-    parser.add_argument("--reference", type=str, help="Reference file.")
+    parser.add_argument("input", type=str, help="Input file.")
+    parser.add_argument("reference", type=str, help="Reference file.")
+    parser.add_argument("output", type=str, help="Output file.")
 
     parser.add_argument("--n-samples", type=int, default=0, help="Number of samples.")
 
