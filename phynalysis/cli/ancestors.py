@@ -5,7 +5,7 @@ import pandas as pd
 
 from tqdm import tqdm
 
-from ..transform import haplotype_to_set, set_to_haplotype
+from ..transform import haplotype_to_set, haplotype_to_string
 
 
 def haplotype_distance(haplotype1, haplotype2):
@@ -32,7 +32,7 @@ def main(args):
 
     tqdm.pandas()
     descendant_ancestors = descendant_haplotypes.progress_apply(
-        lambda h: set_to_haplotype(find_ancestor(h, ancestor_haplotypes))
+        lambda h: haplotype_to_string(find_ancestor(h, ancestor_haplotypes))
     )
     data["closest_ancestor"] = descendant_ancestors
     data.to_csv(args.output, index=False)

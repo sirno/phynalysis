@@ -1,5 +1,3 @@
-"""Transform haplotype data to alignment format."""
-
 import argparse
 import logging
 
@@ -8,7 +6,29 @@ import numpy as np
 
 from tqdm import tqdm
 
-from ..transform import haplotypes_to_phylip
+from ..transform import haplotypes_to_phylip, haplotype_to_mutations
+
+
+def changes_from_haplotypes(haplotypes):
+    """Retrieve all changes in haplotypes."""
+    changes = []
+    for haplotype in haplotypes:
+        mutations = haplotype_to_mutations(haplotype)
+        for position, mutation in mutations:
+            changes.append([position, mutation])
+    return pd.DataFrame(changes, columns=["position", "mutation"]).sort_values(
+        "position", ascending=False
+    )
+
+
+def merge_haplotypes(haplotypes):
+    """Merge haplotypes into haplotype."""
+    haplotypes = haplotypes.sample(10, weights="count")
+    changes = changes_from_haplotypes(haplotypes.haplotype)
+    haplotype = ";".join(
+        [f"{change.position}:{change.mutation}" for _, change in changes.iterrows()]
+    )
+    return haplotype
 
 
 def main(args):
@@ -23,31 +43,15 @@ def main(args):
     with open(args.reference, "r", encoding="utf8") as file_descriptor:
         reference = "".join(file_descriptor.read().splitlines()[1:])
 
-    if args.filter_insertions:
-        haplotype_data = haplotype_data[not haplotype_data.haplotype.str.contains("i")]
+    sample_groups = haplotypes_data.groupby("sample_name")
+    merged_haplotypes = sample_groups.apply(merge_haplotypes)
+    sequences_phylip = haplotypes_to_phylip(reference, merged_haplotypes.values)
 
-    haplotype_groups = haplotypes_data.groupby("haplotype")
-    logging.info("Loaded %s haplotypes.", len(haplotype_groups))
-
-    haplotype_counts = haplotype_groups["count"].sum()
-    ids = haplotype_groups.apply(
-        lambda group: "_".join(group.sample_name) + "_" + group.name
-    )
-    haplotypes = haplotype_groups.apply(lambda group: group.name)
-
-    df = pd.DataFrame({"id": ids, "haplotype": haplotypes, "count": haplotype_counts})
-
-    if args.n_samples:
-        df = df.sample(args.n_samples, weights="count", random_state=42)
-
-    sequences_lip = haplotypes_to_phylip(reference, df["haplotype"])
-
-    logging.info("Converted %s sequences.", len(sequences_lip))
-
+    ids = merged_haplotypes.index
     longest_haplotype = max(map(len, ids))
     with open(args.output, "w", encoding="utf8") as file_descriptor:
-        file_descriptor.write(f"{len(ids)} {len(sequences_lip[0])}\n")
-        for name, sequence in zip(ids, sequences_lip):
+        file_descriptor.write(f"{len(ids)} {len(sequences_phylip[0])}\n")
+        for name, sequence in zip(ids, sequences_phylip):
             name = name.replace(":", "|").replace(";", ".").ljust(longest_haplotype)
             file_descriptor.write(f"{name} {sequence}\n")
 

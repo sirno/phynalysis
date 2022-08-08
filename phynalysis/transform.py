@@ -1,53 +1,147 @@
-"""Common transformations for haplotypes and populations."""
+"""Common transformations for haplotypes and populations.
+
+Glossary:
+    - haplotype: A list of changes
+        - as a string: "position:mutation;position:mutation;..."
+        - as a list: [(position, mutation), (position, mutation), ...]
+        - as a set: {(position, mutation), (position, mutation), ...}
+        - as a dictionary: {position: mutation, position: mutation, ...}
+    - haplotypes: A list of haplotypes
+"""
+
+from typing import Union, List, Tuple, Set, Dict
 
 import pandas as pd
 
 from tqdm import tqdm
 
+Change = Tuple[int, str]
 
-def haplotype_to_mutations(haplotype: str):
-    """Get the mutations in a haplotype."""
-    if haplotype == "consensus":
-        return []
-    mutation_strings = haplotype.split(";")
-    mutations = []
-    for mutation in mutation_strings:
-        split = mutation.split(":")
-        mutations.append((int(split[0]), split[1]))
-    return mutations
+HaplotypeList = List[Change]
+HaplotypeSet = Set[Change]
+HaplotypeDict = Dict[int, str]
+
+Haplotype = Union[str, HaplotypeList, HaplotypeSet, HaplotypeDict]
 
 
-def haplotype_to_set(haplotype):
-    """Convert haplotype to list."""
-    if haplotype == "consensus":
+def _parse_haplotype_to_list(haplotype: str) -> HaplotypeList:
+    """Internal parser"""
+    changes = [change.split(":") for change in haplotype.split(";")]
+    return [(int(change[0]), change[1]) for change in changes]
+
+
+def haplotype_to_list(haplotype: Haplotype) -> HaplotypeList:
+    """Get the mutations in a haplotype.
+
+    Returns
+    -------
+    List[Tuple[int, str]]
+        a list of sorted changes in the haplotype
+    """
+    # reference sequence
+    if not haplotype or haplotype == "consensus":
+        return list()
+
+    # do nothing when haplotype is already a list
+    if isinstance(haplotype, list):
+        return haplotype
+
+    # parse haplotype if it is a string
+    if isinstance(haplotype, str):
+        return list(_parse_haplotype_to_list(haplotype))
+
+    # convert dict to iterator over items
+    if isinstance(haplotype, dict):
+        return sorted(list(haplotype.items()), key=lambda x: x[0])
+
+    return sorted(list(haplotype), key=lambda x: x[0])
+
+
+def haplotype_to_set(haplotype: Haplotype) -> HaplotypeSet:
+    """Convert haplotype to a set.
+
+    Returns
+    -------
+    Set[Tuple[int, str]]
+        a set of changes in the haplotype
+    """
+    # reference sequence
+    if not haplotype or haplotype == "consensus":
         return set()
 
-    changes = [changes.split(":") for changes in haplotype.split(";")]
-    return set([(int(change[0]), change[1]) for change in changes])
+    # do nothing when haplotype is already a set
+    if isinstance(haplotype, set):
+        return haplotype
+
+    # parse haplotype if it is a string
+    if isinstance(haplotype, str):
+        return set(_parse_haplotype_to_list(haplotype))
+
+    # convert dict to iterator over items
+    if isinstance(haplotype, dict):
+        return set(haplotype.items())
+
+    return set(haplotype)
 
 
-def set_to_haplotype(set_):
-    """Convert a set of mutations to a haplotype."""
-    if not set_:
+def haplotype_to_dict(haplotype: Haplotype) -> HaplotypeDict:
+    """Convert haplotype to a dict.
+
+    Returns
+    -------
+    Dict[int, str]
+        a dictionary of changes in the haplotype
+    """
+    # reference sequence
+    if not haplotype or haplotype == "consensus":
+        return dict()
+
+    # do nothing when haplotype is already a dict
+    if isinstance(haplotype, dict):
+        return haplotype
+
+    # parse haplotype if it is a string
+    if isinstance(haplotype, str):
+        return dict(_parse_haplotype_to_list(haplotype))
+
+    return dict(haplotype)
+
+
+def haplotype_to_string(haplotype: Haplotype) -> str:
+    """Convert a haplotype to a string.
+
+    Returns
+    -------
+    str
+        String representation of the haplotype
+    """
+    # reference sequence
+    if not haplotype:
         return "consensus"
-    return ";".join(f"{pos}:{mutation}" for pos, mutation in set_)
+
+    # do nothing when haplotype is already a string
+    if isinstance(haplotype, str):
+        return haplotype
+
+    # change iterator if it is a dictionary
+    if isinstance(haplotype, dict):
+        haplotype = haplotype.items()
+
+    return ";".join(
+        f"{pos}:{mutation}" for pos, mutation in sorted(haplotype, key=lambda x: x[0])
+    )
 
 
-def haplotypes_to_phylip(reference, haplotypes, ids):
+def haplotypes_to_phylip(reference: str, haplotypes: List[Haplotype]) -> List[str]:
     """Convert haplotypes to phylip format."""
-    if len(haplotypes) != len(ids):
-        raise ValueError("Number of haplotypes and ids must match.")
-
     sequences = []
     for haplotype in tqdm(haplotypes, desc="haplotype_parsing"):
-        # discard haplotypes with insertions
+        # create list with characters for each position
         sequence = list(reference)
-        for change in haplotype.split(";"):
-            if change == "consensus":
-                break
-            split = change.split(":")
-            position = int(split[0])
-            mutation = split[1]
+        # transform haplotype to list representation
+        haplotype = haplotype_to_list(haplotype)
+        # add all changes to sequence
+        for position, mutation in haplotype:
             if "->" in mutation:
                 sequence[position] = mutation[-1]
             elif mutation.startswith("i"):
@@ -57,15 +151,15 @@ def haplotypes_to_phylip(reference, haplotypes, ids):
         if sequence:
             sequences.append(sequence)
 
-    df = pd.DataFrame({"id": ids, "sequence": sequences})
-
+    # determine longest possible sequence for each reference position
     longest = [
-        max(map(len, [s[i] for s in df.sequence]))
+        max(map(len, [s[i] for s in sequences]))
         for i in tqdm(range(len(reference)), desc="gap_detection")
     ]
+    # add gaps to sequences
     sequences_lip = [
         "".join([s.ljust(l, "-") for s, l in zip(s, longest)])
-        for s in tqdm(df.sequence, desc="gap_inclusion")
+        for s in tqdm(sequences, desc="gap_inclusion")
     ]
 
     return sequences_lip
