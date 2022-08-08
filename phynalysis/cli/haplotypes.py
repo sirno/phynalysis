@@ -21,9 +21,8 @@ from collections import Counter
 import pysam
 
 import pandas as pd
-import numpy as np
 
-from ..utils import changes_from_alignment
+from ..parsers import changes_from_alignment
 
 
 def main(args):
