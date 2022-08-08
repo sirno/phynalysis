@@ -2,9 +2,6 @@ import argparse
 import logging
 
 import pandas as pd
-import numpy as np
-
-from tqdm import tqdm
 
 from ..transform import haplotypes_to_phylip, haplotype_to_mutations
 
