@@ -33,7 +33,15 @@ def main(args):
     df = pd.DataFrame({"id": ids, "haplotype": haplotypes, "count": haplotype_counts})
 
     if args.n_samples:
-        df = df.sample(args.n_samples, weights="count", random_state=42)
+        # sample but ensure that consensus is always included
+        df = pd.concat(
+            [
+                df[df.haplotype == "consensus"],
+                df[df.haplotype != "consensus"].sample(
+                    args.n_samples, weights="count", random_state=args.random_state
+                ),
+            ]
+        )
 
     sequences_lip = haplotypes_to_phylip(reference, df["haplotype"])
 
@@ -41,8 +49,8 @@ def main(args):
 
     longest_haplotype = max(map(len, ids))
     with open(args.output, "w", encoding="utf8") as file_descriptor:
-        file_descriptor.write(f"{len(ids)} {len(sequences_lip[0])}\n")
-        for name, sequence in zip(ids, sequences_lip):
+        file_descriptor.write(f"{len(df['id'])} {len(sequences_lip[0])}\n")
+        for name, sequence in zip(df["id"], sequences_lip):
             name = name.replace(":", "|").replace(";", ".").ljust(longest_haplotype)
             file_descriptor.write(f"{name} {sequence}\n")
 
@@ -57,6 +65,7 @@ def entry():
     parser.add_argument("output", type=str, help="Output file.")
 
     parser.add_argument("--n-samples", type=int, default=0, help="Number of samples.")
+    parser.add_argument("--random-state", type=int, default=42, help="Random state.")
     parser.add_argument(
         "--filter-insertions", action="store_true", help="Filter insertions."
     )
