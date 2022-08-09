@@ -15,3 +15,24 @@ def filter_haplotype_frequency(data, min_frequency):
     """Filter haplotype data by minimum frequency."""
     frequencies = compute_haplotype_frequency(data)
     return data.loc[frequencies.ge(min_frequency)].copy()
+
+
+def unstack(data):
+    """Unstack haplotype data."""
+    return data.reset_index().set_index(["haplotype", "sample_name"]).unstack()
+
+
+def split_and_unstack(data):
+    """Split unstacked haplotype data."""
+    data_unstacked = unstack(data)
+    sample_names_lookup = [
+        list(data[data.replicate == replicate].sample_name.unique())
+        for replicate in data.replicate.unique()
+    ]
+    ancestors = sample_names_lookup[0]
+    replicate_frames = []
+    for sample_names in sample_names_lookup[1:]:
+        replicate_frames.append(
+            data_unstacked.frequency[ancestors + sorted(sample_names)]
+        )
+    return replicate_frames
