@@ -1,10 +1,17 @@
 """Parsing functions to extract haplotypes from reads."""
 
+import pysam
+
 import numpy as np
 import pandas as pd
 
 
-def changes_from_read(reference, seq_id, read, length_threshold):
+def changes_from_read(
+    reference: str,
+    seq_id: int,
+    read: pysam.AlignedRead,
+    length_threshold: int,
+):
     """Retrieve list of changes from single read."""
     changes = []
     if length_threshold >= 0 and abs(len(read.seq) - len(reference)) > length_threshold:
@@ -47,7 +54,12 @@ def changes_from_read(reference, seq_id, read, length_threshold):
     return changes
 
 
-def changes_from_alignment(reference, alignment, quality_threshold, length_threshold):
+def changes_from_alignment(
+    reference: str,
+    alignment: pysam.AlignmentFile,
+    quality_threshold: float,
+    length_threshold: int,
+):
     """Retrieve all changes in an alignment."""
     changes = []
     for seq_id, read in enumerate(alignment):
