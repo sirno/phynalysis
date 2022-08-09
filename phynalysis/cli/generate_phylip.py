@@ -4,9 +4,6 @@ import argparse
 import logging
 
 import pandas as pd
-import numpy as np
-
-from tqdm import tqdm
 
 from ..transform import haplotypes_to_phylip
 
@@ -30,9 +27,7 @@ def main(args):
     logging.info("Loaded %s haplotypes.", len(haplotype_groups))
 
     haplotype_counts = haplotype_groups["count"].sum()
-    ids = haplotype_groups.apply(
-        lambda group: "_".join(group.sample_name) + "_" + group.name
-    )
+    ids = haplotype_groups.apply(lambda group: group.name)
     haplotypes = haplotype_groups.apply(lambda group: group.name)
 
     df = pd.DataFrame({"id": ids, "haplotype": haplotypes, "count": haplotype_counts})
