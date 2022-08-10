@@ -25,7 +25,7 @@ import pandas as pd
 from ..parsers import changes_from_alignment
 
 
-def main(args):
+def haplotypes(args):
     """Main."""
     logging.basicConfig(
         filename=args.log_file,
@@ -98,4 +98,4 @@ def entry():
 
     parser.add_argument("--log-file", help="Log file")
 
-    main(parser.parse_args())
+    haplotypes(parser.parse_args())

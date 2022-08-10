@@ -18,14 +18,8 @@ import numpy as np
 from ..parsers import changes_from_alignment
 
 
-def main(args):
+def consensus(args):
     """Main."""
-    logging.basicConfig(
-        filename=args.log_file,
-        level=logging.INFO,
-        format="%(levelname)s:%(asctime)s %(message)s",
-    )
-
     alignment = pysam.AlignmentFile(args.alignment, "rb", check_sq=False)
     with open(args.reference, "r", encoding="utf8") as file_descriptor:
         reference = "".join(file_descriptor.read().splitlines()[1:])
@@ -70,10 +64,10 @@ def entry():
     """Entry."""
     parser = argparse.ArgumentParser(description="Compute consensus sequence.")
 
+    parser.add_argument("input", type=str, help="Alignment file.")
     parser.add_argument("reference", type=str, help="Reference file.")
-    parser.add_argument("alignment", type=str, help="Alignment file.")
-    parser.add_argument("consensus", type=str, help="Consensus file (output).")
+    parser.add_argument("-o", "--output", type=str, help="Consensus file (output).")
 
     parser.add_argument("--log-file", type=str, help="Log file.")
 
-    main(parser.parse_args())
+    consensus(parser.parse_args())
