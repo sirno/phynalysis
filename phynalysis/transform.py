@@ -132,8 +132,8 @@ def haplotype_to_string(haplotype: Haplotype) -> str:
     )
 
 
-def haplotypes_to_phylip(reference: str, haplotypes: List[Haplotype]) -> List[str]:
-    """Convert haplotypes to phylip format."""
+def haplotypes_to_matrix(reference: str, haplotypes: List[Haplotype]) -> List[str]:
+    """Convert haplotypes to matrix of aligned symbols."""
     sequences = []
     for haplotype in tqdm(haplotypes, desc="haplotype_parsing"):
         # create list with characters for each position

@@ -5,7 +5,7 @@ import logging
 
 import pandas as pd
 
-from phynalysis.export.phylip import get_phylip
+from phynalysis.export import get_nexus
 
 
 def main(args):
@@ -34,17 +34,15 @@ def main(args):
 
     if args.n_samples:
         # sample but ensure that consensus is always included
-        df = pd.concat(
-            [
-                df[df.haplotype == "consensus"],
-                df[df.haplotype != "consensus"].sample(
-                    args.n_samples, weights="count", random_state=args.random_state
-                ),
-            ]
+        df = df.sample(
+            args.n_samples,
+            weights="count",
+            random_state=args.random_state,
+            replace=True,
         )
 
     with open(args.output, "w", encoding="utf8") as file_descriptor:
-        file_descriptor.write(get_phylip(df, reference))
+        file_descriptor.write(get_nexus(df, reference))
 
 
 def entry():
