@@ -27,11 +27,6 @@ from ..parsers import changes_from_alignment
 
 def haplotypes(args):
     """Main."""
-    logging.basicConfig(
-        filename=args.log_file,
-        level=logging.INFO,
-        format="%(levelname)s:%(asctime)s %(message)s",
-    )
     logging.info(
         "Running phynalysis-haplotypes with quality_threshold=%s and length_threshold=%s",
         args.quality_threshold,
@@ -42,7 +37,7 @@ def haplotypes(args):
         reference = "".join(file_descriptor.read().splitlines()[1:])
 
     logging.info("Reading alignment...")
-    alignment = pysam.AlignmentFile(args.alignment, "rb", check_sq=False)
+    alignment = pysam.AlignmentFile(args.input, "rb", check_sq=False)
     changes, n_seq = changes_from_alignment(
         reference,
         alignment,
@@ -72,11 +67,8 @@ def haplotypes(args):
     # haplotypes["frequencies"] = haplotypes["count"] / n_seq
     haplotypes.sort_values("count", inplace=True, ascending=False)
 
-    logging.info("Writing file %s...", args.output_mutations)
-    mutations.to_csv(args.output_mutations, index=False)
-
-    logging.info("Writing file %s...", args.output_haplotypes)
-    haplotypes.to_csv(args.output_haplotypes, index=False)
+    logging.info("Writing file %s...", args.output)
+    haplotypes.to_csv(args.output, index=False)
 
 
 def entry():

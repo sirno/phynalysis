@@ -14,8 +14,10 @@ def main():
     common_parser.add_argument("reference", type=str, help="Reference file.")
     common_parser.add_argument("-o", "--output", type=str, help="Output file.")
 
+    log_parser = argparse.ArgumentParser(add_help=False)
+    log_parser.add_argument("--log-file", type=str, help="Log file.")
+
     parser = argparse.ArgumentParser(description="Phynalysis toolbox.")
-    parser.add_argument("--log-file", type=str, help="Log file.")
 
     subparsers = parser.add_subparsers(
         title="subcommands",
@@ -26,7 +28,7 @@ def main():
     convert_parser = subparsers.add_parser(
         "convert",
         help="Convert data to other formats.",
-        parents=[common_parser],
+        parents=[common_parser, log_parser],
     )
     convert_parser.add_argument(
         "--n-samples",
@@ -56,7 +58,7 @@ def main():
     haplotypes_parser = subparsers.add_parser(
         "haplotypes",
         help="Extract haplotypes from alignment file.",
-        parents=[common_parser],
+        parents=[common_parser, log_parser],
     )
     haplotypes_parser.add_argument(
         "--quality-threshold",
@@ -75,13 +77,14 @@ def main():
     consensus_parser = subparsers.add_parser(
         "consensus",
         help="Compute a consensus sequence.",
-        parents=[common_parser],
+        parents=[common_parser, log_parser],
     )
     consensus_parser.set_defaults(func=consensus)
 
     ancestors_parser = subparsers.add_parser(
         "ancestors",
         help="Find closes ancestors.",
+        parents=[log_parser],
     )
     ancestors_parser.add_argument("input", type=str, help="Input file.")
     ancestors_parser.add_argument("-o", "--output", type=str, help="Output file.")
