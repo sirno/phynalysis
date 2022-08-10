@@ -69,25 +69,3 @@ def haplotypes(args):
 
     logging.info("Writing file %s...", args.output)
     haplotypes.to_csv(args.output, index=False)
-
-
-def entry():
-    """Entry."""
-    parser = argparse.ArgumentParser(description="Analyse haplotypes in a sample.")
-
-    parser.add_argument("reference", help="Reference file")
-    parser.add_argument("alignment", help="Alignment file")
-
-    parser.add_argument("output_mutations", help="Output file for mutations")
-    parser.add_argument("output_haplotypes", help="Output file for haplotypes")
-
-    parser.add_argument(
-        "--quality-threshold", type=int, default=47, help="Quality threshold"
-    )
-    parser.add_argument(
-        "--length-threshold", type=int, default=100, help="Length threshold"
-    )
-
-    parser.add_argument("--log-file", help="Log file")
-
-    haplotypes(parser.parse_args())

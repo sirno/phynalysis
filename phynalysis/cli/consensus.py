@@ -58,16 +58,3 @@ def consensus(args):
     with open(args.consensus, "w", encoding="utf8") as file_descriptor:
         file_descriptor.write(f"> consensus of {args.consensus}\n{consensus}")
     logging.info(f"Consensus sequence written to {args.consensus}.")
-
-
-def entry():
-    """Entry."""
-    parser = argparse.ArgumentParser(description="Compute consensus sequence.")
-
-    parser.add_argument("input", type=str, help="Alignment file.")
-    parser.add_argument("reference", type=str, help="Reference file.")
-    parser.add_argument("-o", "--output", type=str, help="Consensus file (output).")
-
-    parser.add_argument("--log-file", type=str, help="Log file.")
-
-    consensus(parser.parse_args())

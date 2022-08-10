@@ -36,15 +36,3 @@ def ancestors(args):
     )
     data["closest_ancestor"] = descendant_ancestors
     data.to_csv(args.output, index=False)
-
-
-def entry():
-    """Entry."""
-    parser = argparse.ArgumentParser(description="")
-
-    parser.add_argument("input", type=str, help="Input file.")
-    parser.add_argument("-o", "--output", type=str, help="Output file.")
-
-    parser.add_argument("--log", default="INFO")
-
-    ancestors(parser.parse_args())
