@@ -48,8 +48,8 @@ def main():
         help="Filter insertions.",
     )
     convert_parser.add_argument(
-        "-t",
-        "--type",
+        "-f",
+        "--format",
         type=str,
         help="Type of conversion.",
     )
