@@ -36,16 +36,22 @@ def convert(args):
     ids = haplotype_groups.apply(lambda group: group.name)
     haplotypes = haplotype_groups.apply(lambda group: group.name)
 
-    df = pd.DataFrame({"id": ids, "haplotype": haplotypes, "count": haplotype_counts})
+    data = pd.DataFrame({"id": ids, "haplotype": haplotypes, "count": haplotype_counts})
 
     if args.n_samples:
         # sample but ensure that consensus is always included
-        df = df.sample(
+        data = data.sample(
             args.n_samples,
             weights="count",
             random_state=args.random_state,
             replace=True,
         )
 
+    template = None
+
+    if args.template:
+        with open(args.template, "r", encoding="utf8") as file_descriptor:
+            template = file_descriptor.read()
+
     with open(args.output, "w", encoding="utf8") as file_descriptor:
-        file_descriptor.write(_conversions[args.format](df, reference))
+        file_descriptor.write(_conversions[args.format](data, reference, template))

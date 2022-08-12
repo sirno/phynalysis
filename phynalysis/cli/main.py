@@ -53,6 +53,12 @@ def main():
         type=str,
         help="Type of conversion.",
     )
+    convert_parser.add_argument(
+        "-t",
+        "--template",
+        type=str,
+        help="Template file.",
+    )
     convert_parser.set_defaults(func=convert)
 
     haplotypes_parser = subparsers.add_parser(
