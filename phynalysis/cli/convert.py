@@ -4,11 +4,16 @@ import logging
 
 import pandas as pd
 
-from phynalysis.export import get_nexus, get_phylip
+from phynalysis.export import (
+    get_nexus,
+    get_phylip,
+    get_xml,
+)
 
 _conversions = {
     "nexus": get_nexus,
     "phylip": get_phylip,
+    "xml": get_xml,
 }
 
 

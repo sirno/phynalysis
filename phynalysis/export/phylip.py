@@ -1,6 +1,13 @@
 """Export phylip format."""
 
+from .nexus import DEFAULT_TEMPLATE
 from ..transform import haplotypes_to_matrix
+
+
+DEFAULT_TEMPLATE = """
+{n_tax} {n_char}
+{data}
+"""
 
 
 def _format_data(ids, matrix):
@@ -13,7 +20,7 @@ def _format_data(ids, matrix):
     )
 
 
-def get_phylip(data, reference):
+def get_phylip(data, reference, template=None):
     """Convert haplotypes to phylip format.
 
     Parameters
@@ -34,8 +41,13 @@ def get_phylip(data, reference):
     if not "id" in data.columns:
         raise ValueError("Dataframe must contain column 'id'.")
 
+    if template is None:
+        template = DEFAULT_TEMPLATE
+
     sequences_matrix = haplotypes_to_matrix(reference, data["haplotype"])
 
-    return f"{len(data['id'])} {len(sequences_matrix[0])}\n" + _format_data(
-        data["id"], sequences_matrix
+    return template.format(
+        n_tax=len(sequences_matrix),
+        n_char=len(sequences_matrix[0]),
+        data=_format_data(data["id"], sequences_matrix),
     )

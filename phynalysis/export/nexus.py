@@ -3,13 +3,16 @@
 from ..transform import haplotypes_to_matrix
 
 
-def _get_nexus_header(n_tax, n_char):
-    return f"""#NEXUS
+DEFAULT_TEMPLATE = """
+#NEXUS
 
 BEGIN DATA;
     DIMENSIONS NTAX={n_tax} NCHAR={n_char};
     FORMAT MISSING=? GAP=- DATATYPE=DNA;
     MATRIX
+{data}
+    ;
+END;
 """
 
 
@@ -23,7 +26,7 @@ def _format_data(ids, matrix):
     )
 
 
-def get_nexus(data, reference):
+def get_nexus(data, reference, template=None):
     """Convert haplotypes to nexus format.
 
     Parameters
@@ -44,10 +47,13 @@ def get_nexus(data, reference):
     if not "id" in data.columns:
         raise ValueError("Dataframe must contain column 'id'.")
 
+    if template is None:
+        template = DEFAULT_TEMPLATE
+
     sequences_matrix = haplotypes_to_matrix(reference, data["haplotype"])
 
-    return (
-        _get_nexus_header(len(sequences_matrix), len(sequences_matrix[0]))
-        + _format_data(data["id"], sequences_matrix)
-        + ";\nEND;\n"
+    return template.format(
+        n_tax=len(sequences_matrix),
+        n_char=len(sequences_matrix[0]),
+        data=_format_data(data["id"], sequences_matrix),
     )
