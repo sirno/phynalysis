@@ -47,8 +47,8 @@ def convert(args):
             replace=True,
         )
 
+    # load template file if needed
     template = None
-
     if args.template:
         with open(args.template, "r", encoding="utf8") as file_descriptor:
             template = file_descriptor.read()

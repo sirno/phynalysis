@@ -29,6 +29,9 @@ def get_phylip(data, reference, template=None):
         Dataframe with columns "haplotype" and "id".
     reference : str
         Reference sequence.
+    template : str
+        Template for phylip file with {n_tax}, {n_char} and {data} as placeholders. If
+        None, the default template is used.
 
     Returns
     -------

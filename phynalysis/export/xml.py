@@ -13,7 +13,7 @@ def _sequence_data(data, sequences):
 
 
 def _time_data(data):
-    return ",/n".join([f"{name}={row.time}" for name, row in data.iterrows()])
+    return ",/n".join([f"{name}={row.time:.2f}" for name, row in data.iterrows()])
 
 
 def _count_data(data):
@@ -29,12 +29,18 @@ def get_xml(data, reference, template=None):
         Dataframe with columns "haplotype", "id" and "time"
     reference : str
         Reference sequence.
+    template : str
+        Template for xml file with {sequence_data}, {time_data} and {count_data} as
+        placeholders.
 
     Returns
     -------
     str
         XML formatted string
     """
+    if template is None:
+        raise ValueError("Template must be provided for xml export.")
+
     if not "haplotype" in data.columns:
         raise ValueError("Dataframe must contain column 'haplotype'.")
 
