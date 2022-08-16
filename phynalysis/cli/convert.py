@@ -35,16 +35,23 @@ def convert(args):
     haplotype_counts = haplotype_groups["count"].sum()
     ids = haplotype_groups.apply(lambda group: group.name)
     haplotypes = haplotype_groups.apply(lambda group: group.name)
+    times = haplotype_groups.apply(lambda group: group.time.min())
 
-    data = pd.DataFrame({"id": ids, "haplotype": haplotypes, "count": haplotype_counts})
+    data = pd.DataFrame(
+        {
+            "id": ids,
+            "haplotype": haplotypes,
+            "count": haplotype_counts,
+            "time": times,
+        }
+    )
 
     if args.n_samples:
-        # sample but ensure that consensus is always included
         data = data.sample(
             args.n_samples,
             weights="count",
             random_state=args.random_state,
-            replace=True,
+            replace=False,
         )
 
     # load template file if needed

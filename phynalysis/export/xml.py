@@ -13,11 +13,11 @@ def _sequence_data(data, sequences):
 
 
 def _time_data(data):
-    return ",/n".join([f"{name}={row.time:.2f}" for name, row in data.iterrows()])
+    return ",\n".join([f"{name}={row.time:.2f}" for name, row in data.iterrows()])
 
 
 def _count_data(data):
-    return ",/n".join([f"{name}={row.count}" for name, row in data.iterrows()])
+    return ",\n".join([f"{name}={row['count']}" for name, row in data.iterrows()])
 
 
 def get_xml(data, reference, template=None):
@@ -55,5 +55,5 @@ def get_xml(data, reference, template=None):
     return template.format(
         sequence_data=_sequence_data(data, sequences_matrix),
         time_data=_time_data(data),
-        count_cata=_count_data(data),
+        count_data=_count_data(data),
     )
