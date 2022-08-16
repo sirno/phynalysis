@@ -18,7 +18,7 @@ _conversions = {
 
 
 def convert(args):
-    """Main."""
+    """Convert command main function."""
     if args.format not in _conversions:
         logging.ERROR("Unknown format: %s", args.format)
 

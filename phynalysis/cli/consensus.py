@@ -1,4 +1,4 @@
-"""Compute consensus sequence.
+"""Consensus subcommand.
 
 Compute the consensus sequence of a given aligned .bam file, and write it to a
 target file.
@@ -6,10 +6,7 @@ target file.
 Additionally, print summary statistics of the alignment to log file.
 
 Original Author: Eva Bons
-
-Usage: python consensus.py reference.fasta alignment.bam consensus.fasta
 """
-import argparse
 import logging
 
 import pysam
@@ -19,7 +16,7 @@ from ..parsers import changes_from_alignment
 
 
 def consensus(args):
-    """Main."""
+    """Consensus command main function."""
     alignment = pysam.AlignmentFile(args.alignment, "rb", check_sq=False)
     with open(args.reference, "r", encoding="utf8") as file_descriptor:
         reference = "".join(file_descriptor.read().splitlines()[1:])

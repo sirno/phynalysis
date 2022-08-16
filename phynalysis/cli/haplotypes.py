@@ -1,19 +1,13 @@
-"""Analyse haplotypes in a sample.
+"""Haplotypes subcommand.
 
-This module is used to find the frequency of mutations and haplotypes in each
-sample.
+Analyse haplotypes in a sample. This module is used to find the frequency of mutations
+and haplotypes in each sample.
 
-It creates two output files:
-
-- a file containing the frequency of mutations in each sample
-- a file containing the frequency of haplotypes in each sample
+It creates a CSV file with the counts of haplotypes in each sample.
 
 Original author: Eva Bons
-
-Usage: phynalysis-haplotypes reference.fasta alignment.bam output_mutations.csv output_haplotypes.csv
 """
 
-import argparse
 import logging
 
 from collections import Counter
@@ -26,7 +20,7 @@ from ..parsers import changes_from_alignment
 
 
 def haplotypes(args):
-    """Main."""
+    """Haplotypes command main function."""
     logging.info(
         "Running phynalysis-haplotypes with quality_threshold=%s and length_threshold=%s",
         args.quality_threshold,

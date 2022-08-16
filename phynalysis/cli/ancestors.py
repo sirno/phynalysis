@@ -1,5 +1,4 @@
-"""Main module."""
-import argparse
+"""Ancestors subcommand."""
 
 import pandas as pd
 
@@ -22,7 +21,7 @@ def _find_ancestor(descendant, ancestors):
 
 
 def ancestors(args):
-    """Main."""
+    """Ancestor command main function."""
     data = pd.read_csv(args.input)
     ancestors = data[data.time == 0]
     descendants = data[data.time > 0]
