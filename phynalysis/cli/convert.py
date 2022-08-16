@@ -26,6 +26,9 @@ def convert(args):
     with open(args.reference, "r", encoding="utf8") as file_descriptor:
         reference = "".join(file_descriptor.read().splitlines()[1:])
 
+    if args.exclude_ancestors:
+        haplotypes_data = haplotypes_data[haplotypes_data.time != 0]
+
     if args.filter_insertions:
         haplotype_data = haplotype_data[not haplotype_data.haplotype.str.contains("i")]
 
@@ -35,7 +38,7 @@ def convert(args):
     haplotype_counts = haplotype_groups["count"].sum()
     ids = haplotype_groups.apply(lambda group: group.name)
     haplotypes = haplotype_groups.apply(lambda group: group.name)
-    times = haplotype_groups.apply(lambda group: group.time.min())
+    times = haplotype_groups.apply(lambda group: 100 * group.time.min())
 
     data = pd.DataFrame(
         {

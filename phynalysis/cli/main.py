@@ -48,6 +48,11 @@ def main():
         help="Filter insertions.",
     )
     convert_parser.add_argument(
+        "--exclude-ancestors",
+        action="store_true",
+        help="Exclude ancestors.",
+    )
+    convert_parser.add_argument(
         "-f",
         "--format",
         type=str,
