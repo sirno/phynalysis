@@ -1,6 +1,7 @@
 import argparse
 import logging
 
+from .aggregate import aggregate
 from .ancestors import ancestors
 from .consensus import consensus
 from .convert import convert
@@ -100,6 +101,16 @@ def main():
     ancestors_parser.add_argument("input", type=str, help="Input file.")
     ancestors_parser.add_argument("-o", "--output", type=str, help="Output file.")
     ancestors_parser.set_defaults(func=ancestors)
+
+    aggregate_parser = subparsers.add_parser(
+        "aggregate",
+        help="Aggregate haplotypes data into single file.",
+        parents=[log_parser],
+    )
+    aggregate_parser.add_argument("barcodes", type=str, help="Input file.")
+    aggregate_parser.add_argument("input", nargs="+", type=str, help="Input files.")
+    aggregate_parser.add_argument("-o", "--output", type=str, help="Output file.")
+    aggregate_parser.set_defaults(func=aggregate)
 
     args = parser.parse_args()
     logging.basicConfig(
