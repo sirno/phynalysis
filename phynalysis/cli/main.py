@@ -54,6 +54,11 @@ def main():
         help="Exclude ancestors.",
     )
     convert_parser.add_argument(
+        "--merge-replicates",
+        action="store_true",
+        help="Merge replicates.",
+    )
+    convert_parser.add_argument(
         "-f",
         "--format",
         type=str,

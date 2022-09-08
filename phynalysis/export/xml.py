@@ -20,6 +20,10 @@ def _count_data(data):
     return ",\n".join([f"{name}={row['count']}" for name, row in data.iterrows()])
 
 
+def _type_data(data):
+    return ",\n".join([f"{name}={row['lineage']}" for name, row in data.iterrows()])
+
+
 def get_xml(data, reference, template=None):
     """Convert haplotypes to xml format.
 
@@ -52,8 +56,13 @@ def get_xml(data, reference, template=None):
 
     sequences_matrix = haplotypes_to_matrix(reference, data["haplotype"])
 
-    return template.format(
-        sequence_data=_sequence_data(data, sequences_matrix),
-        time_data=_time_data(data),
-        count_data=_count_data(data),
-    )
+    content = {}
+
+    content["sequence_data"] = _sequence_data(data, sequences_matrix)
+    content["time_data"] = _time_data(data)
+    content["count_data"] = _count_data(data)
+
+    if "lineage" in data.columns:
+        content["type_data"] = _type_data(data)
+
+    return template.format(**content)

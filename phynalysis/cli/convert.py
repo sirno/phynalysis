@@ -30,24 +30,34 @@ def convert(args):
         haplotypes_data = haplotypes_data[haplotypes_data.time != 0]
 
     if args.filter_insertions:
-        haplotype_data = haplotype_data[not haplotype_data.haplotype.str.contains("i")]
+        haplotypes_data = haplotypes_data[
+            not haplotypes_data.haplotype.str.contains("i")
+        ]
 
-    haplotype_groups = haplotypes_data.groupby("haplotype")
-    logging.info("Loaded %s haplotypes.", len(haplotype_groups))
+    if args.merge_replicates:
+        haplotype_groups = haplotypes_data.groupby("haplotype")
+        logging.info("Loaded %s haplotypes.", len(haplotype_groups))
 
-    haplotype_counts = haplotype_groups["count"].sum()
-    ids = haplotype_groups.apply(lambda group: group.name)
-    haplotypes = haplotype_groups.apply(lambda group: group.name)
-    times = haplotype_groups.apply(lambda group: 100 * group.time.min())
+        haplotype_counts = haplotype_groups["count"].sum()
+        ids = haplotype_groups.apply(lambda group: group.name)
+        haplotypes = haplotype_groups.apply(lambda group: group.name)
+        times = haplotype_groups.apply(lambda group: 100 * group.time.min())
 
-    data = pd.DataFrame(
-        {
-            "id": ids,
-            "haplotype": haplotypes,
-            "count": haplotype_counts,
-            "time": times,
-        }
-    )
+        data = pd.DataFrame(
+            {
+                "id": ids,
+                "haplotype": haplotypes,
+                "count": haplotype_counts,
+                "time": times,
+            }
+        )
+    else:
+        data = haplotypes_data[["time", "haplotype", "count"]].copy()
+        data["lineage"] = (
+            haplotypes_data.replicate
+            + haplotypes_data.replicate.max() * haplotypes_data.compartment
+        )
+        data["id"] = data["haplotype"] + "_" + data["lineage"].astype(str)
 
     if args.n_samples:
         data = data.sample(
