@@ -4,7 +4,7 @@ import logging
 
 import pandas as pd
 
-from .main import write
+from .utils import write
 from phynalysis.export import (
     get_nexus,
     get_phylip,

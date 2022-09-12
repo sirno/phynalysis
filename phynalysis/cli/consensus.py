@@ -12,7 +12,7 @@ import logging
 import pysam
 import numpy as np
 
-from .main import write
+from .utils import write
 from ..parsers import changes_from_alignment
 
 
