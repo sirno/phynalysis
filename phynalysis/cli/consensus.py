@@ -12,6 +12,7 @@ import logging
 import pysam
 import numpy as np
 
+from .main import write
 from ..parsers import changes_from_alignment
 
 
@@ -52,6 +53,8 @@ def consensus(args):
             )
 
     consensus = "".join(consensus)
-    with open(args.consensus, "w", encoding="utf8") as file_descriptor:
-        file_descriptor.write(f"> consensus of {args.consensus}\n{consensus}")
+    formatted_data = f">consensus of {args.consensus}\n{consensus}"
+
+    write(args.output, formatted_data)
+
     logging.info(f"Consensus sequence written to {args.consensus}.")

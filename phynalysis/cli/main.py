@@ -1,5 +1,6 @@
 import argparse
 import logging
+import sys
 
 from .aggregate import aggregate
 from .ancestors import ancestors
@@ -11,9 +12,24 @@ from .haplotypes import haplotypes
 def main():
     """Main."""
     common_parser = argparse.ArgumentParser(add_help=False)
-    common_parser.add_argument("input", nargs="?", type=str, help="Input file.")
-    common_parser.add_argument("-r", "--reference", type=str, help="Reference file.")
-    common_parser.add_argument("-o", "--output", type=str, help="Output file.")
+    common_parser.add_argument(
+        "input",
+        nargs="?",
+        default=sys.stdin,
+        help="Input file.",
+    )
+    common_parser.add_argument(
+        "-r",
+        "--reference",
+        type=str,
+        help="Reference file.",
+    )
+    common_parser.add_argument(
+        "-o",
+        "--output",
+        default=sys.stdout,
+        help="Output file.",
+    )
 
     log_parser = argparse.ArgumentParser(add_help=False)
     log_parser.add_argument("--log-file", type=str, help="Log file.")
@@ -61,6 +77,7 @@ def main():
     convert_parser.add_argument(
         "-f",
         "--format",
+        default="phylip",
         type=str,
         help="Type of conversion.",
     )
@@ -124,3 +141,12 @@ def main():
         format="%(levelname)s:%(asctime)s %(message)s",
     )
     args.func(args)
+
+
+def write(file, data):
+    """Write file to output."""
+    if isinstance(file, str):
+        with open(file, "w", encoding="utf8") as file_descriptor:
+            file_descriptor.write(data)
+    else:
+        file.write(data)

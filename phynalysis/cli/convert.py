@@ -4,6 +4,7 @@ import logging
 
 import pandas as pd
 
+from .main import write
 from phynalysis.export import (
     get_nexus,
     get_phylip,
@@ -23,6 +24,7 @@ def convert(args):
         logging.ERROR("Unknown format: %s", args.format)
 
     haplotypes_data = pd.read_csv(args.input)
+
     with open(args.reference, "r", encoding="utf8") as file_descriptor:
         reference = "".join(file_descriptor.read().splitlines()[1:])
 
@@ -73,5 +75,7 @@ def convert(args):
         with open(args.template, "r", encoding="utf8") as file_descriptor:
             template = file_descriptor.read()
 
-    with open(args.output, "w", encoding="utf8") as file_descriptor:
-        file_descriptor.write(_conversions[args.format](data, reference, template))
+    # convert data to desired format
+    formatted_data = _conversions[args.format](data, reference, template=template)
+
+    write(args.output, formatted_data)
