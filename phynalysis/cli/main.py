@@ -11,8 +11,8 @@ from .haplotypes import haplotypes
 def main():
     """Main."""
     common_parser = argparse.ArgumentParser(add_help=False)
-    common_parser.add_argument("input", type=str, help="Input file.")
-    common_parser.add_argument("reference", type=str, help="Reference file.")
+    common_parser.add_argument("input", nargs="?", type=str, help="Input file.")
+    common_parser.add_argument("-r", "--reference", type=str, help="Reference file.")
     common_parser.add_argument("-o", "--output", type=str, help="Output file.")
 
     log_parser = argparse.ArgumentParser(add_help=False)
