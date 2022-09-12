@@ -1,9 +1,11 @@
 """Haplotypes subcommand.
 
-Analyse haplotypes in a sample. This module is used to find the frequency of mutations
-and haplotypes in each sample.
+Analyse haplotypes in a sample. This module is used to find all haplotypes in each
+sample.
 
-It creates a CSV file with the counts of haplotypes in each sample.
+The output is a CSV file with the following columns:
+    - haplotype: Haplotype sequence
+    - count: Number of sequences with this haplotype
 
 Original author: Eva Bons
 """
@@ -57,8 +59,8 @@ def haplotypes(args):
     haplotype_counter["consensus"] = n_seq - changes.seq_id.unique().size
     logging.info("Found %s haplotypes.", len(haplotype_counter))
 
+    # Create the haplotype dataframe
     haplotypes = pd.DataFrame(haplotype_counter.items(), columns=["haplotype", "count"])
-    # haplotypes["frequencies"] = haplotypes["count"] / n_seq
     haplotypes.sort_values("count", inplace=True, ascending=False)
 
     logging.info("Writing file %s...", args.output)
