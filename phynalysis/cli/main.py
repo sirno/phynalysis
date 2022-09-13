@@ -6,6 +6,7 @@ from .aggregate import aggregate
 from .ancestors import ancestors
 from .consensus import consensus
 from .convert import convert
+from .filter import filter
 from .haplotypes import haplotypes
 
 
@@ -19,16 +20,19 @@ def main():
         help="Input file.",
     )
     common_parser.add_argument(
-        "-r",
-        "--reference",
-        type=str,
-        help="Reference file.",
-    )
-    common_parser.add_argument(
         "-o",
         "--output",
         default=sys.stdout,
         help="Output file.",
+    )
+
+    reference_parser = argparse.ArgumentParser(add_help=False)
+    reference_parser.add_argument(
+        "-r",
+        "--reference",
+        type=str,
+        required=True,
+        help="Reference file.",
     )
 
     log_parser = argparse.ArgumentParser(add_help=False)
@@ -45,7 +49,7 @@ def main():
     convert_parser = subparsers.add_parser(
         "convert",
         help="Convert data to other formats.",
-        parents=[common_parser, log_parser],
+        parents=[common_parser, reference_parser, log_parser],
     )
     convert_parser.add_argument(
         "--n-samples",
@@ -92,7 +96,7 @@ def main():
     haplotypes_parser = subparsers.add_parser(
         "haplotypes",
         help="Extract haplotypes from alignment file.",
-        parents=[common_parser, log_parser],
+        parents=[common_parser, reference_parser, log_parser],
     )
     haplotypes_parser.add_argument(
         "--quality-threshold",
@@ -108,10 +112,18 @@ def main():
     )
     haplotypes_parser.set_defaults(func=haplotypes)
 
+    filter_parser = subparsers.add_parser(
+        "filter",
+        help="Filter haplotypes data.",
+        parents=[common_parser, log_parser],
+    )
+    filter_parser.add_argument("--query", type=str, help="Expr to filter by.")
+    filter_parser.set_defaults(func=filter)
+
     consensus_parser = subparsers.add_parser(
         "consensus",
         help="Compute a consensus sequence.",
-        parents=[common_parser, log_parser],
+        parents=[common_parser, reference_parser, log_parser],
     )
     consensus_parser.set_defaults(func=consensus)
 
@@ -138,6 +150,6 @@ def main():
     logging.basicConfig(
         filename=args.log_file,
         level=logging.INFO,
-        format="%(levelname)s:%(asctime)s %(message)s",
+        format="%(levelname)s: %(message)s",
     )
     args.func(args)
