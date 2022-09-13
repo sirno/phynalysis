@@ -1,6 +1,7 @@
 """Convert subcommand."""
 
 import logging
+import sys
 
 import pandas as pd
 
@@ -21,7 +22,8 @@ _conversions = {
 def convert(args):
     """Convert command main function."""
     if args.format not in _conversions:
-        logging.ERROR("Unknown format: %s", args.format)
+        logging.error("Unknown format: %s", args.format)
+        sys.exit(1)
 
     haplotypes_data = pd.read_csv(args.input)
 
