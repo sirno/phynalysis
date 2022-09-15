@@ -18,7 +18,7 @@ from ..parsers import changes_from_alignment
 
 def consensus(args):
     """Consensus command main function."""
-    alignment = pysam.AlignmentFile(args.alignment, "rb", check_sq=False)
+    alignment = pysam.AlignmentFile(args.input, "rb", check_sq=False)
     with open(args.reference, "r", encoding="utf8") as file_descriptor:
         reference = "".join(file_descriptor.read().splitlines()[1:])
 
