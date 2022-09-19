@@ -55,9 +55,10 @@ def convert(args):
     else:
         data = haplotypes_data[["time", "haplotype", "count"]].copy()
         data["lineage"] = (
-            haplotypes_data.replicate
-            + haplotypes_data.replicate.max() * haplotypes_data.compartment
+            haplotypes_data.compartment
+            + haplotypes_data.compartment.max() * haplotypes_data.replicate
         )
+        data["lineage"] -= data.lineage.min()
         data["id"] = data["haplotype"] + "_" + data["lineage"].astype(str)
 
     if args.n_samples:
@@ -65,7 +66,7 @@ def convert(args):
             args.n_samples,
             weights="count",
             random_state=args.random_state,
-            replace=False,
+            replace=args.replace_samples,
         )
 
     # load template file if needed

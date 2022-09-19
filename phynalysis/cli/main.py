@@ -64,6 +64,11 @@ def main():
         help="Random state.",
     )
     convert_parser.add_argument(
+        "--replace-samples",
+        action="store_true",
+        help="Sample with replacement.",
+    )
+    convert_parser.add_argument(
         "--filter-insertions",
         action="store_true",
         help="Filter insertions.",
