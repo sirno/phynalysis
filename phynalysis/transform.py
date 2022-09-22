@@ -11,10 +11,6 @@ Glossary:
 
 from typing import Union, List, Tuple, Set, Dict
 
-import pandas as pd
-
-from tqdm import tqdm
-
 Change = Tuple[int, str]
 
 HaplotypeList = List[Change]
@@ -135,7 +131,7 @@ def haplotype_to_string(haplotype: Haplotype) -> str:
 def haplotypes_to_matrix(reference: str, haplotypes: List[Haplotype]) -> List[str]:
     """Convert haplotypes to matrix of aligned symbols."""
     sequences = []
-    for haplotype in tqdm(haplotypes, desc="haplotype_parsing"):
+    for haplotype in haplotypes:
         # create list with characters for each position
         sequence = list(reference)
         # transform haplotype to list representation
@@ -152,14 +148,10 @@ def haplotypes_to_matrix(reference: str, haplotypes: List[Haplotype]) -> List[st
             sequences.append(sequence)
 
     # determine longest possible sequence for each reference position
-    longest = [
-        max(map(len, [s[i] for s in sequences]))
-        for i in tqdm(range(len(reference)), desc="gap_detection")
-    ]
+    longest = [max(map(len, [s[i] for s in sequences])) for i in range(len(reference))]
     # add gaps to sequences
     sequences_lip = [
-        "".join([s.ljust(l, "-") for s, l in zip(s, longest)])
-        for s in tqdm(sequences, desc="gap_inclusion")
+        "".join([s.ljust(l, "-") for s, l in zip(s, longest)]) for s in sequences
     ]
 
     return sequences_lip
