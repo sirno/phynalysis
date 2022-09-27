@@ -53,8 +53,8 @@ def consensus(args):
             )
 
     consensus = "".join(consensus)
-    formatted_data = f">consensus of {args.consensus}\n{consensus}"
+    formatted_data = f">consensus of {args.output}\n{consensus}"
 
     write(args.output, formatted_data)
 
-    logging.info(f"Consensus sequence written to {args.consensus}.")
+    logging.info(f"Consensus sequence written to {args.output}.")
