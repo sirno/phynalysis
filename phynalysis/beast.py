@@ -2,6 +2,7 @@
 
 import pandas as pd
 import seaborn as sns
+import matplotlib.pyplot as plt
 
 from pathlib import Path
 from typing import Union
@@ -29,3 +30,4 @@ def plot_rate_matrix(log_data: pd.DataFrame):
         [indices, mean_rates.reset_index(name="mean")], axis=1
     ).pivot(index="from", columns="to", values="mean")
     sns.heatmap(mean_rate_matrix, annot=True, fmt=".2f", cmap="YlGn")
+    plt.show()
