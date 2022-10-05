@@ -52,7 +52,10 @@ def compute_ess(log_data: np.ndarray):
             "Install it with `pip install mcmc_diagnostics`."
         )
 
-    def wrapper(x, **kwargs):
-        return estimate_ess(np.array(x), axis=-1)
+    def estimate_ess_wrapper(x):
+        try:
+            return estimate_ess(np.array(x), axis=0)
+        except np.linalg.LinAlgError:
+            return np.nan
 
-    return log_data.astype("float").apply(wrapper, raw=False, axis=0)
+    return log_data.astype("float").apply(estimate_ess_wrapper, raw=False, axis=0)
