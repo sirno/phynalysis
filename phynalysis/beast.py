@@ -1,8 +1,13 @@
 """Beast analysis module."""
 
+import re
+
 import numpy as np
 import pandas as pd
 
+from Bio import Phylo
+
+from collections import Counter
 from pathlib import Path
 from typing import Union
 
@@ -59,3 +64,19 @@ def compute_ess(log_data: np.ndarray):
             return np.nan
 
     return log_data.astype("float").apply(estimate_ess_wrapper, raw=False, axis=0)
+
+
+def get_clade_type_counts(trees_file: Union[str, Path]):
+    """Read BEAST2 trees file and return clade type counts."""
+    pattern = re.compile('&type="(?P<type>\d+)"')
+    trees = Phylo.parse(trees_file, "newick")
+    type_counts = pd.DataFrame()
+
+    for tree in trees:
+        clades = tree.find_clades()
+        counter = Counter(
+            [int(pattern.search(clade.comment).group("type")) for clade in clades]
+        )
+        type_counts = type_counts.append(counter, ignore_index=True)
+
+    return type_counts
