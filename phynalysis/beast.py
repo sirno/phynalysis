@@ -1,6 +1,7 @@
 """Beast analysis module."""
 
 import re
+import logging
 
 import numpy as np
 import pandas as pd
@@ -66,8 +67,11 @@ def compute_ess(log_data: np.ndarray):
     return log_data.astype("float").apply(estimate_ess_wrapper, raw=False, axis=0)
 
 
-def get_clade_type_counts(trees_file: Union[str, Path]):
+def count_clade_types(trees_file: Union[str, Path]):
     """Read BEAST2 trees file and return clade type counts."""
+    if not trees_file.endswith(".nwk"):
+        logging.warning("Trees file should be in Newick format.")
+
     pattern = re.compile('&type="(?P<type>\d+)"')
     trees = Phylo.parse(trees_file, "newick")
     type_counts = pd.DataFrame()
