@@ -1,7 +1,6 @@
 """Ancestors subcommand."""
 
 import pandas as pd
-
 from tqdm import tqdm
 
 from ..transform import haplotype_to_set, haplotype_to_string

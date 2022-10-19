@@ -1,9 +1,8 @@
 """Export phylip format."""
 
-from .utils import incremental_fmt
-from .nexus import DEFAULT_TEMPLATE
 from ..transform import haplotypes_to_matrix
-
+from .nexus import DEFAULT_TEMPLATE
+from .utils import incremental_fmt
 
 DEFAULT_TEMPLATE = """
 {n_tax} {n_char}

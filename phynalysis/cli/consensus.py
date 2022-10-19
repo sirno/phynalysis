@@ -9,11 +9,11 @@ Original Author: Eva Bons
 """
 import logging
 
-import pysam
 import numpy as np
+import pysam
 
-from .utils import write
 from ..parsers import changes_from_alignment
+from .utils import write
 
 
 def consensus(args):

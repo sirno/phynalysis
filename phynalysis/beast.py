@@ -1,16 +1,14 @@
 """Beast analysis module."""
 
-import re
 import logging
-
-import numpy as np
-import pandas as pd
-
-from Bio import Phylo
-
+import re
 from collections import Counter
 from pathlib import Path
 from typing import Union
+
+import numpy as np
+import pandas as pd
+from Bio import Phylo
 
 
 def read_beast_log(log_file: Union[str, Path], burn_in: Union[int, float] = 0):
@@ -28,8 +26,8 @@ def read_beast_log(log_file: Union[str, Path], burn_in: Union[int, float] = 0):
 def plot_rate_matrix(log_data: pd.DataFrame):
     """Plot heatmap of the rate matrix."""
     try:
-        from seaborn import heatmap
         from matplotlib.pyplot import show
+        from seaborn import heatmap
     except ImportError:
         ImportError(
             "Seaborn and matplotlib are required to use this function."
@@ -82,5 +80,6 @@ def count_clade_types(trees_file: Union[str, Path]):
             [int(pattern.search(clade.comment).group("type")) for clade in clades]
         )
         type_counts = type_counts.append(counter, ignore_index=True)
+        print(counter)
 
     return type_counts

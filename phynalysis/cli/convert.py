@@ -5,12 +5,9 @@ import sys
 
 import pandas as pd
 
+from phynalysis.export import get_nexus, get_phylip, get_xml
+
 from .utils import write
-from phynalysis.export import (
-    get_nexus,
-    get_phylip,
-    get_xml,
-)
 
 _conversions = {
     "nexus": get_nexus,

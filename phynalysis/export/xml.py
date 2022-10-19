@@ -1,7 +1,7 @@
 """Export xml format."""
 
-from .utils import incremental_fmt
 from ..transform import haplotypes_to_matrix
+from .utils import incremental_fmt
 
 
 def _sequence_data(data, sequences):

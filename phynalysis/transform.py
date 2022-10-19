@@ -9,7 +9,7 @@ Glossary:
     - haplotypes: A list of haplotypes
 """
 
-from typing import Union, List, Tuple, Set, Dict
+from typing import Dict, List, Set, Tuple, Union
 
 Change = Tuple[int, str]
 

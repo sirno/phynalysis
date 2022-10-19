@@ -3,7 +3,7 @@ import logging
 
 import pandas as pd
 
-from ..transform import haplotypes_to_phylip, haplotype_to_mutations
+from ..transform import haplotype_to_mutations, haplotypes_to_phylip
 
 
 def changes_from_haplotypes(haplotypes):

@@ -11,12 +11,10 @@ Original author: Eva Bons
 """
 
 import logging
-
 from collections import Counter
 
-import pysam
-
 import pandas as pd
+import pysam
 
 from ..parsers import changes_from_alignment
 

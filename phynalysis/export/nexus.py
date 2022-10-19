@@ -1,8 +1,7 @@
 """Export nexus format."""
 
-from .utils import incremental_fmt
 from ..transform import haplotypes_to_matrix
-
+from .utils import incremental_fmt
 
 DEFAULT_TEMPLATE = """
 #NEXUS
