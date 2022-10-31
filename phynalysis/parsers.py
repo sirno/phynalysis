@@ -9,12 +9,9 @@ def changes_from_read(
     reference: str,
     seq_id: int,
     read: pysam.AlignedRead,
-    length_threshold: int,
 ):
     """Retrieve list of changes from single read."""
     changes = []
-    if length_threshold >= 0 and abs(len(read.seq) - len(reference)) > length_threshold:
-        return changes
     read_pos = 0
     ref_pos = read.reference_start
     for cigar in read.cigar:
@@ -93,18 +90,10 @@ def changes_from_read(
 def changes_from_alignment(
     reference: str,
     alignment: pysam.AlignmentFile,
-    quality_threshold: float,
-    length_threshold: int,
 ):
     """Retrieve all changes in an alignment."""
     changes = []
     for seq_id, read in enumerate(alignment):
-        changes += changes_from_read(reference, seq_id, read, length_threshold)
+        changes += changes_from_read(reference, seq_id, read)
 
-    df = pd.DataFrame(changes, columns=["seq_id", "position", "mutation", "quality"])
-    n_seq = seq_id
-
-    if quality_threshold > 0:
-        return df[df["quality"] > quality_threshold], n_seq
-
-    return df, n_seq
+    return pd.DataFrame(changes, columns=["seq_id", "position", "mutation", "quality"])

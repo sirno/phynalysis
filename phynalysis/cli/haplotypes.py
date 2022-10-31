@@ -32,14 +32,28 @@ def haplotypes(args):
 
     logging.info("Reading alignment...")
     alignment = pysam.AlignmentFile(args.input, "rb", check_sq=False)
-    changes, n_seq = changes_from_alignment(
-        reference,
-        alignment,
-        quality_threshold=args.quality_threshold,
-        length_threshold=args.length_threshold,
-    )
+
+    if args.length_threshold:
+        logging.info("Filtering reads by length...")
+        alignment = filter(
+            lambda read: abs(read.reference_length - read.query_length)
+            > args.length_threshold,
+            alignment,
+        )
+
+    n_seq = len(list(alignment))
 
     logging.info("Computing mutations...")
+    changes = changes_from_alignment(
+        reference,
+        alignment,
+    )
+
+    if args.quality_threshold > 0:
+        logging.info("Filtering mutations by quality...")
+        changes = changes.query("quality >= @args.quality_threshold")
+
+    logging.info("Reformatting mutations...")
     counts = changes.groupby(["position", "mutation"], as_index=False).count()
     counts["frequencies"] = counts.seq_id / n_seq
     mutations = counts.drop(["seq_id", "quality"], axis=1)
