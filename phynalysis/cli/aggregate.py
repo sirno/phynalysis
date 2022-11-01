@@ -18,12 +18,12 @@ def aggregate(args):
 
     # merge data
     haplotypes = pd.concat(samples, keys=keys)
-    haplotypes.index.names = ["bar_code", "local_id"]
+    haplotypes.index.names = ["barcode", "local_id"]
     haplotypes.reset_index(inplace=True)
 
     # merge barcodes
     haplotypes_annotated = haplotypes.merge(
-        barcodes, on="bar_code", how="left"
+        barcodes, on="barcode", how="left"
     ).reset_index()
 
     # write output
