@@ -37,11 +37,12 @@ def haplotypes(args):
         logging.info("Filtering reads by length...")
         alignment = filter(
             lambda read: abs(read.reference_length - read.query_length)
-            > args.length_threshold,
+            < args.length_threshold,
             alignment,
         )
 
-    n_seq = len(list(alignment))
+    alignment = list(alignment)
+    n_seq = len(alignment)
 
     logging.info("Computing mutations...")
     changes = changes_from_alignment(
