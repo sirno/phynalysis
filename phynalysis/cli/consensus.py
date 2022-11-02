@@ -21,8 +21,9 @@ def consensus(args):
     alignment = pysam.AlignmentFile(args.input, "rb", check_sq=False)
     with open(args.reference, "r", encoding="utf8") as file_descriptor:
         reference = "".join(file_descriptor.read().splitlines()[1:])
+    alignment = list(alignment)
 
-    n_seq = len(list(alignment))
+    n_seq = len(alignment)
     changes = changes_from_alignment(reference, alignment)
 
     logging.info(f"Found {len(changes)} mutations in {n_seq} sequences.")
