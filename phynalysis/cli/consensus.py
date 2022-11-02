@@ -22,7 +22,8 @@ def consensus(args):
     with open(args.reference, "r", encoding="utf8") as file_descriptor:
         reference = "".join(file_descriptor.read().splitlines()[1:])
 
-    changes, n_seq = changes_from_alignment(reference, alignment, 0, -1)
+    n_seq = len(list(alignment))
+    changes = changes_from_alignment(reference, alignment)
 
     logging.info(f"Found {len(changes)} mutations in {n_seq} sequences.")
 
