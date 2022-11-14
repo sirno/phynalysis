@@ -62,6 +62,7 @@ def changes_from_read(
         elif cigar[0] == 1:  # insertion
             qualities = read.get_forward_qualities()
 
+            quality = None
             if qualities:
                 quality = np.mean(qualities[read_pos : read_pos + cigar[1]])
 
@@ -73,7 +74,7 @@ def changes_from_read(
                     seq_id,
                     ref_pos,
                     "i" + insertion,
-                    quality if quality else 255,
+                    quality if quality is not None else 255,
                 ]
             )
 
