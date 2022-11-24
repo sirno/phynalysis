@@ -65,9 +65,10 @@ def convert(args):
             random_state=args.random_state,
             replace=args.replace_samples,
         )
-        if args.replace_samples:
-            data = data.reset_index(drop=True)
-            data["id"] += "_" + data.index.astype(str)
+
+    # ensure each haplotype has a unique id
+    data = data.reset_index(drop=True)
+    data["id"] += "_" + data.index.astype(str)
 
     # load template file if needed
     template = None
