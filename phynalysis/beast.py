@@ -23,6 +23,16 @@ def read_beast_log(log_file: Union[str, Path], burn_in: Union[int, float] = 0):
     return data
 
 
+def _extract_mean_rates(log_data: pd.DataFrame) -> pd.DataFrame:
+    """Extract mean rates from log data."""
+    mean_rates = log_data.filter(regex="migration_model\.rateMatrix_").mean()
+    indices = mean_rates.index.str.extract(
+        r"migration_model\.rateMatrix_(?P<source>\d+)_(?P<target>\d+)"
+    )
+
+    return pd.concat([indices, mean_rates.reset_index(name="mean")], axis=1)
+
+
 def plot_rate_matrix(log_data: pd.DataFrame):
     """Plot heatmap of the rate matrix."""
     try:
@@ -34,16 +44,43 @@ def plot_rate_matrix(log_data: pd.DataFrame):
             "Install them with `pip install phynalysis[beast]`."
         )
 
-    mean_rates = log_data.filter(regex="migration_model\.rateMatrix_").mean()
-    indices = mean_rates.index.str.extract(
-        r"migration_model\.rateMatrix_(?P<from>\d+)_(?P<to>\d+)"
-    )
-    mean_rate_matrix = pd.concat(
-        [indices, mean_rates.reset_index(name="mean")], axis=1
-    ).pivot(index="from", columns="to", values="mean")
+    mean_rates = _extract_mean_rates(log_data)
+    mean_rate_matrix = mean_rates.pivot("source", "target", "mean")
 
     heatmap(mean_rate_matrix, annot=True, fmt=".2f", cmap="YlGn")
     show()
+
+
+def plot_topology(log_data: pd.DataFrame):
+    """Plot type topology."""
+    try:
+        from networkx import MultiDiGraph, draw, get_edge_attributes
+    except ImportError:
+        raise ImportError(
+            "NetworkX is required to use this function."
+            "Install it with `pip install phynalysis[beast]`."
+        )
+
+    mean_rates = _extract_mean_rates(log_data)
+
+    graph = MultiDiGraph()
+    for i in mean_rates.source.unique():
+        graph.add_node(i, label=i)
+
+    for _, e in mean_rates.iterrows():
+        print(e)
+        graph.add_edge(e.source, e.target, width=e["mean"])
+
+    width = get_edge_attributes(graph, "width").values()
+
+    draw(
+        graph,
+        with_labels=True,
+        connectionstyle="arc3, rad = 0.1",
+        width=list(width),
+        min_source_margin=10,
+        min_target_margin=10,
+    )
 
 
 def compute_ess(log_data: np.ndarray):
