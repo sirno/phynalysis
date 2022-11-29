@@ -68,7 +68,6 @@ def plot_topology(log_data: pd.DataFrame):
         graph.add_node(i, label=i)
 
     for _, e in mean_rates.iterrows():
-        print(e)
         graph.add_edge(e.source, e.target, width=e["mean"])
 
     width = get_edge_attributes(graph, "width").values()
