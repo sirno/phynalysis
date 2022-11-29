@@ -2,6 +2,7 @@
 
 import logging
 import re
+import math
 from collections import Counter
 from pathlib import Path
 from typing import Union
@@ -51,10 +52,15 @@ def plot_rate_matrix(log_data: pd.DataFrame):
     show()
 
 
-def plot_topology(log_data: pd.DataFrame):
+def plot_topology(log_data: pd.DataFrame, ax=None):
     """Plot type topology."""
     try:
-        from networkx import MultiDiGraph, draw, get_edge_attributes
+        from networkx import (
+            MultiDiGraph,
+            draw,
+            get_edge_attributes,
+            get_node_attributes,
+        )
     except ImportError:
         raise ImportError(
             "NetworkX is required to use this function."
@@ -64,21 +70,32 @@ def plot_topology(log_data: pd.DataFrame):
     mean_rates = _extract_mean_rates(log_data)
 
     graph = MultiDiGraph()
-    for i in mean_rates.source.unique():
-        graph.add_node(i, label=i)
+    n_nodes = len(mean_rates.source.unique())
+    for idx, label in enumerate(mean_rates.source.unique()):
+        graph.add_node(
+            label,
+            label=label,
+            pos=(
+                -math.sin(idx / n_nodes * 2 * math.pi),
+                math.cos(idx / n_nodes * 2 * math.pi),
+            ),
+        )
 
     for _, e in mean_rates.iterrows():
         graph.add_edge(e.source, e.target, width=e["mean"])
 
     width = get_edge_attributes(graph, "width").values()
+    positions = get_node_attributes(graph, "pos")
 
     draw(
         graph,
+        positions,
         with_labels=True,
         connectionstyle="arc3, rad = 0.1",
         width=list(width),
         min_source_margin=10,
         min_target_margin=10,
+        ax=ax,
     )
 
 
