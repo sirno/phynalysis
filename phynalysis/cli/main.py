@@ -2,12 +2,31 @@ import argparse
 import logging
 import sys
 
+from collections import defaultdict
+from pathlib import Path
+
 from .aggregate import aggregate
 from .ancestors import ancestors
 from .consensus import consensus
 from .convert import convert
 from .filter import filter
 from .haplotypes import haplotypes
+
+
+class ParseTemplate(argparse.Action):
+    def __call__(self, parser, namespace, values, option_string=None):
+        setattr(namespace, self.dest, defaultdict(lambda: None))
+        for value in values:
+            key, value = value.split("=")
+            getattr(namespace, self.dest)[key] = value
+
+
+class ParsePath(argparse.Action):
+    def __call__(self, parser, namespace, values, option_string=None):
+        if isinstance(values, str):
+            setattr(namespace, self.dest, Path(values))
+        else:
+            setattr(namespace, self.dest, values)
 
 
 def main():
@@ -17,12 +36,14 @@ def main():
         "input",
         nargs="?",
         default=sys.stdin,
+        action=ParsePath,
         help="Input file.",
     )
     common_parser.add_argument(
         "-o",
         "--output",
         default=sys.stdout,
+        action=ParsePath,
         help="Output file.",
     )
 
@@ -30,13 +51,13 @@ def main():
     reference_parser.add_argument(
         "-r",
         "--reference",
-        type=str,
+        type=Path,
         required=True,
         help="Reference file.",
     )
 
     log_parser = argparse.ArgumentParser(add_help=False)
-    log_parser.add_argument("--log-file", type=str, help="Log file.")
+    log_parser.add_argument("--log-file", type=Path, help="Log file.")
 
     parser = argparse.ArgumentParser(description="Phynalysis toolbox.")
 
@@ -81,14 +102,14 @@ def main():
     convert_parser.add_argument(
         "-f",
         "--format",
-        default="phylip",
+        nargs="+",
         type=str,
         help="Type of conversion.",
     )
     convert_parser.add_argument(
         "-t",
         "--template",
-        type=str,
+        action=ParseTemplate,
         help="Template file.",
     )
     convert_parser.set_defaults(func=convert)
@@ -132,8 +153,8 @@ def main():
         help="Find closes ancestors.",
         parents=[log_parser],
     )
-    ancestors_parser.add_argument("input", type=str, help="Input file.")
-    ancestors_parser.add_argument("-o", "--output", type=str, help="Output file.")
+    ancestors_parser.add_argument("input", type=Path, help="Input file.")
+    ancestors_parser.add_argument("-o", "--output", type=Path, help="Output file.")
     ancestors_parser.set_defaults(func=ancestors)
 
     aggregate_parser = subparsers.add_parser(
@@ -141,9 +162,9 @@ def main():
         help="Aggregate haplotypes data into single file.",
         parents=[log_parser],
     )
-    aggregate_parser.add_argument("barcodes", type=str, help="Input file.")
-    aggregate_parser.add_argument("input", nargs="+", type=str, help="Input files.")
-    aggregate_parser.add_argument("-o", "--output", type=str, help="Output file.")
+    aggregate_parser.add_argument("barcodes", type=Path, help="Input file.")
+    aggregate_parser.add_argument("input", nargs="+", type=Path, help="Input files.")
+    aggregate_parser.add_argument("-o", "--output", type=Path, help="Output file.")
     aggregate_parser.set_defaults(func=aggregate)
 
     args = parser.parse_args()

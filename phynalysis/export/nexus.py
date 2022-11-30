@@ -36,7 +36,6 @@ def get_nexus(data, reference, template=None):
     reference : str
         Reference sequence.
     template : str
-
         Template for nexus file with {n_tax}, {n_char} and {data} as placeholders. If
         None, the default template is used.
 

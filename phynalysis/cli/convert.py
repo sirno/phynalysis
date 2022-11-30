@@ -3,24 +3,35 @@
 import logging
 import sys
 
+from pathlib import Path
+
 import pandas as pd
 
-from phynalysis.export import get_nexus, get_phylip, get_xml
+from phynalysis.export import get_fasta, get_nexus, get_phylip, get_xml
 
 from .utils import write
 
 _conversions = {
+    "fasta": get_fasta,
     "nexus": get_nexus,
     "phylip": get_phylip,
     "xml": get_xml,
 }
 
+_suffixes = {
+    "fasta": ".fasta",
+    "nexus": ".nex",
+    "phylip": ".phylip",
+    "xml": ".xml",
+}
+
 
 def convert(args):
     """Convert command main function."""
-    if args.format not in _conversions:
-        logging.error("Unknown format: %s", args.format)
-        sys.exit(1)
+    for format in args.format:
+        if format not in _conversions:
+            logging.error("Unknown format: %s", args.format)
+            sys.exit(1)
 
     haplotypes_data = pd.read_csv(args.input)
 
@@ -70,13 +81,14 @@ def convert(args):
     data = data.reset_index(drop=True)
     data["id"] += "_" + data.index.astype(str)
 
-    # load template file if needed
-    template = None
-    if args.template:
-        with open(args.template, "r", encoding="utf8") as file_descriptor:
-            template = file_descriptor.read()
+    output_file = args.output
+    for format in args.format:
+        # convert data to desired format
+        content = _conversions[format](data, reference, template=args.template)
 
-    # convert data to desired format
-    formatted_data = _conversions[args.format](data, reference, template=template)
+        # ensure output file has correct suffix
+        if isinstance(args.output, Path):
+            output_file = args.output.with_suffix(_suffixes[format])
 
-    write(args.output, formatted_data)
+        # write content to file
+        write(output_file, content)
