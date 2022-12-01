@@ -72,9 +72,12 @@ def haplotypes(args):
     haplotype_counter["consensus"] = n_seq - changes.seq_id.unique().size
     logging.info("Found %s haplotypes.", len(haplotype_counter))
 
-    # Create the haplotype dataframe
+    # create the haplotype dataframe
     haplotypes = pd.DataFrame(haplotype_counter.items(), columns=["haplotype", "count"])
     haplotypes.sort_values("count", inplace=True, ascending=False)
+
+    # filter haplotypes with zero count
+    haplotypes = haplotypes.query("count > 0")
 
     logging.info("Writing file %s...", args.output)
     haplotypes.to_csv(args.output, index=False)
