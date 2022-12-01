@@ -11,6 +11,7 @@ from .consensus import consensus
 from .convert import convert
 from .filter import filter
 from .haplotypes import haplotypes
+from .sample import sample
 
 
 class ParseTemplate(argparse.Action):
@@ -75,23 +76,6 @@ def main():
         parents=[common_parser, reference_parser, log_parser],
     )
     convert_parser.add_argument(
-        "--n-samples",
-        type=int,
-        default=0,
-        help="Number of samples.",
-    )
-    convert_parser.add_argument(
-        "--random-state",
-        type=int,
-        default=42,
-        help="Random state.",
-    )
-    convert_parser.add_argument(
-        "--replace-samples",
-        action="store_true",
-        help="Sample with replacement.",
-    )
-    convert_parser.add_argument(
         "--merge-replicates",
         action="store_true",
         help="Merge replicates.",
@@ -110,6 +94,30 @@ def main():
         help="Template file.",
     )
     convert_parser.set_defaults(func=convert)
+
+    sample_parser = subparsers.add_parser(
+        "sample",
+        help="Sample data.",
+        parents=[common_parser, log_parser],
+    )
+    sample_parser.add_argument(
+        "--n-samples",
+        type=int,
+        default=0,
+        help="Number of samples.",
+    )
+    sample_parser.add_argument(
+        "--random-state",
+        type=int,
+        default=42,
+        help="Random state.",
+    )
+    sample_parser.add_argument(
+        "--replace-samples",
+        action="store_true",
+        help="Sample with replacement.",
+    )
+    sample_parser.set_defaults(func=sample)
 
     haplotypes_parser = subparsers.add_parser(
         "haplotypes",

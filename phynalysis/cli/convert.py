@@ -45,7 +45,7 @@ def convert(args):
         haplotype_counts = haplotype_groups["count"].sum()
         ids = haplotype_groups.apply(lambda group: group.name)
         haplotypes = haplotype_groups.apply(lambda group: group.name)
-        times = haplotype_groups.apply(lambda group: 100 * group.time.min())
+        times = haplotype_groups.apply(lambda group: group.time.min())
 
         data = pd.DataFrame(
             {
@@ -63,14 +63,6 @@ def convert(args):
         )
         data["lineage"] -= data.lineage.min()
         data["id"] = data["haplotype"] + "_" + data["lineage"].astype(str)
-
-    if args.n_samples:
-        data = data.sample(
-            args.n_samples,
-            weights="count",
-            random_state=args.random_state,
-            replace=args.replace_samples,
-        )
 
     # ensure each haplotype has a unique id
     data = data.reset_index(drop=True)
