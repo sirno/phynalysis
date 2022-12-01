@@ -84,7 +84,7 @@ def convert(args):
     output_file = args.output
     for format in args.format:
         # convert data to desired format
-        content = _conversions[format](data, reference, template=args.template)
+        content = _conversions[format](data, reference, template=args.template[format])
 
         # ensure output file has correct suffix
         if isinstance(args.output, Path):

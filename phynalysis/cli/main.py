@@ -16,6 +16,8 @@ from .haplotypes import haplotypes
 class ParseTemplate(argparse.Action):
     def __call__(self, parser, namespace, values, option_string=None):
         setattr(namespace, self.dest, defaultdict(lambda: None))
+        if isinstance(values, str):
+            values = [values]
         for value in values:
             key, value = value.split("=")
             getattr(namespace, self.dest)[key] = value
