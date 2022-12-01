@@ -1,4 +1,4 @@
-"""Format utility functions."""
+"""Formatter functions."""
 
 import string
 
@@ -14,6 +14,3 @@ class IncrementalFormatter(string.Formatter):
             return kwds.get(key, self.default.format(key))
         else:
             return string.Formatter.get_value(key, args, kwds)
-
-
-incremental_fmt = IncrementalFormatter()

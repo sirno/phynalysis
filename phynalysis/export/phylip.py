@@ -2,7 +2,7 @@
 
 from ..transform import haplotypes_to_matrix
 from .nexus import DEFAULT_TEMPLATE
-from .utils import incremental_fmt
+from .formatter import IncrementalFormatter
 
 DEFAULT_TEMPLATE = """
 {n_tax} {n_char}
@@ -49,7 +49,7 @@ def get_phylip(data, reference, template=None):
 
     sequences_matrix = haplotypes_to_matrix(reference, data["haplotype"])
 
-    return incremental_fmt.format(
+    return IncrementalFormatter().format(
         template,
         n_tax=len(sequences_matrix),
         n_char=len(sequences_matrix[0]),

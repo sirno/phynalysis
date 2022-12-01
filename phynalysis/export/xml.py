@@ -1,7 +1,7 @@
 """Export xml format."""
 
 from ..transform import haplotypes_to_matrix
-from .utils import incremental_fmt
+from .formatter import IncrementalFormatter
 
 
 def _sequence_data(data, sequences):
@@ -66,4 +66,4 @@ def get_xml(data, reference, template=None):
     if "lineage" in data.columns:
         content["type_data"] = _type_data(data)
 
-    return incremental_fmt.format(template, **content)
+    return IncrementalFormatter().format(template, **content)
