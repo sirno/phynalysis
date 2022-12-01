@@ -113,6 +113,12 @@ def main():
         help="Random state.",
     )
     sample_parser.add_argument(
+        "--balance-groups",
+        type=str,
+        nargs="?",
+        help="Groups to balance.",
+    )
+    sample_parser.add_argument(
         "--replace-samples",
         action="store_true",
         help="Sample with replacement.",
