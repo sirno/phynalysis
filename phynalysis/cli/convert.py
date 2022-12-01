@@ -70,8 +70,14 @@ def convert(args):
 
     output_file = args.output
     for format in args.format:
+        # load template
+        template = None
+        if args.template[format] is not None:
+            with open(args.template[format], "r", encoding="utf8") as file_descriptor:
+                template = file_descriptor.read()
+
         # convert data to desired format
-        content = _conversions[format](data, reference, template=args.template[format])
+        content = _conversions[format](data, reference, template=template)
 
         # ensure output file has correct suffix
         if isinstance(args.output, Path):
