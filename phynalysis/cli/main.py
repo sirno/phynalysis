@@ -92,11 +92,6 @@ def main():
         help="Sample with replacement.",
     )
     convert_parser.add_argument(
-        "--filter-insertions",
-        action="store_true",
-        help="Filter insertions.",
-    )
-    convert_parser.add_argument(
         "--merge-replicates",
         action="store_true",
         help="Merge replicates.",
@@ -141,6 +136,11 @@ def main():
         parents=[common_parser, log_parser],
     )
     filter_parser.add_argument("--query", type=str, help="Expr to filter by.")
+    filter_parser.add_argument(
+        "--filter-insertions",
+        action="store_true",
+        help="Filter insertions.",
+    )
     filter_parser.set_defaults(func=filter)
 
     consensus_parser = subparsers.add_parser(

@@ -38,11 +38,6 @@ def convert(args):
     with open(args.reference, "r", encoding="utf8") as file_descriptor:
         reference = "".join(file_descriptor.read().splitlines()[1:])
 
-    if args.filter_insertions:
-        haplotypes_data = haplotypes_data[
-            not haplotypes_data.haplotype.str.contains("i")
-        ]
-
     if args.merge_replicates:
         haplotype_groups = haplotypes_data.groupby("haplotype")
         logging.info("Loaded %s haplotypes.", len(haplotype_groups))
