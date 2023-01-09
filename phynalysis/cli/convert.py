@@ -62,7 +62,13 @@ def convert(args):
             + haplotypes_data.compartment.max() * haplotypes_data.replicate
         )
         data["lineage"] -= data.lineage.min()
-        data["id"] = data["haplotype"] + "_" + data["lineage"].astype(str)
+        data["id"] = (
+            data["haplotype"]
+            + "_"
+            + data["lineage"].astype(str)
+            + "_"
+            + data["time"].astype(str)
+        )
 
     # ensure each haplotype has a unique id
     data = data.reset_index(drop=True)
