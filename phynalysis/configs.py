@@ -26,6 +26,7 @@ class BeastConfig(JSONWizard, YAMLWizard):
             .replace(">", "gt")
             .replace("[", "")
             .replace("]", "")
+            .replace("==", "eq")
         )
 
     @property
