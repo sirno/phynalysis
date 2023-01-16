@@ -14,7 +14,7 @@ def aggregate(args):
 
     # extract barcodes from file names
     regex = r"(\w+)\.haplotypes\.csv"
-    keys = [re.search(regex, file).group(1) for file in args.input]
+    keys = [re.search(regex, str(file)).group(1) for file in args.input]
 
     # merge data
     haplotypes = pd.concat(samples, keys=keys)
