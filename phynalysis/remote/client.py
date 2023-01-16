@@ -2,6 +2,7 @@
 
 import paramiko
 import errno
+import rich
 
 
 class PhynalysisRemoteClient:
@@ -48,8 +49,15 @@ class PhynalysisRemoteClient:
 
     def mkdir(self, path):
         """Make directory."""
-        self.ssh_client.exec_command(f"mkdir -p {path}")
+        self.execute(f"mkdir -p {path}", print_output=False)
 
     def put(self, local_path, remote_path):
         """Put a file."""
         self.sftp_client.put(local_path, remote_path)
+
+    def execute(self, command, print_output=True):
+        """Execute a command."""
+        stdin, stdout, stderr = self.ssh_client.exec_command(command)
+        if print_output:
+            rich.print(stdout.read().decode("utf-8").strip())
+        return stdout.channel.recv_exit_status()
