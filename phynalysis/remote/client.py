@@ -3,6 +3,7 @@
 import paramiko
 import errno
 import rich
+import stat
 
 
 class PhynalysisRemoteClient:
@@ -47,9 +48,25 @@ class PhynalysisRemoteClient:
         else:
             return True
 
+    def is_dir(self, path):
+        """Check if a path is a directory."""
+        return stat.S_ISDIR(self.sftp_client.stat(path).st_mode)
+
+    def is_file(self, path):
+        """Check if a path is a file."""
+        return stat.S_ISREG(self.sftp_client.stat(path).st_mode)
+
     def mkdir(self, path):
         """Make directory."""
         self.execute(f"mkdir -p {path}", print_output=False)
+
+    def listdir(self, path):
+        """List directory."""
+        return self.sftp_client.listdir(path)
+
+    def get(self, remote_path, local_path):
+        """Get a file."""
+        self.sftp_client.get(remote_path, local_path)
 
     def put(self, local_path, remote_path):
         """Put a file."""
@@ -61,3 +78,8 @@ class PhynalysisRemoteClient:
         if print_output:
             rich.print(stdout.read().decode("utf-8").strip())
         return stdout.channel.recv_exit_status()
+
+    def find(self, path, pattern):
+        """Find files."""
+        stdin, stdout, stderr = self.ssh_client.exec_command(f"fd . {path} {pattern}")
+        return stdout.read().decode("utf-8").strip().split("\n")
