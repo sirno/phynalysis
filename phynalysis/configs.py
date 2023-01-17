@@ -35,7 +35,6 @@ class BeastConfig(JSONWizard, YAMLWizard):
 
     def config_path(self):
         config_path = os.path.join(
-            "beast",
             self.template,
             self.sample,
             self.encoded_query,
