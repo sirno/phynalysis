@@ -1,9 +1,14 @@
 """Configuration classes."""
 
+from __future__ import annotations
+
 import os
+import re
 
 from dataclasses import dataclass
 from dataclass_wizard import JSONWizard, YAMLWizard
+from typing import List
+
 
 
 @dataclass
@@ -41,3 +46,26 @@ class BeastConfig(JSONWizard, YAMLWizard):
             self.encoded_seed,
         )
         return config_path
+
+@dataclass
+class VirolutionConfig(JSONWizard, YAMLWizard):
+    path: str
+    generations: int
+
+    def expand_path(self) -> List[VirolutionConfig]:
+        configs = []
+        expansion_stack = [self.path]
+        list_regex = re.compile("\[(.*?)\]")
+        while expansion_stack:
+            path = expansion_stack.pop()
+            list_match = re.search(list_regex, path)
+
+            if list_match is None:
+                configs.append(VirolutionConfig(path, self.generations))
+                continue
+
+            for item in list_match.group(1).split(","):
+                expanded_path = path.replace(list_match.group(0), item)
+                expansion_stack.append(expanded_path)
+
+        return configs
