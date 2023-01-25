@@ -10,7 +10,6 @@ from dataclass_wizard import JSONWizard, YAMLWizard
 from typing import List
 
 
-
 @dataclass
 class BeastConfig(JSONWizard, YAMLWizard):
     template: str
@@ -47,25 +46,43 @@ class BeastConfig(JSONWizard, YAMLWizard):
         )
         return config_path
 
+    def expand_paths(self) -> List[BeastConfig]:
+        """Expand a path with list syntax into a list of paths."""
+        template_paths = _expand_path(self.template)
+        sample_paths = _expand_path(self.sample)
+        return [
+            BeastConfig(**{**self.__dict__, "template": template, "sample": sample})
+            for template in template_paths
+            for sample in sample_paths
+        ]
+
+
 @dataclass
 class VirolutionConfig(JSONWizard, YAMLWizard):
     path: str
     generations: int
 
     def expand_path(self) -> List[VirolutionConfig]:
-        configs = []
-        expansion_stack = [self.path]
-        list_regex = re.compile("\[(.*?)\]")
-        while expansion_stack:
-            path = expansion_stack.pop()
-            list_match = re.search(list_regex, path)
+        """Expand a path with list syntax into a list of paths."""
+        return [
+            VirolutionConfig(path, self.generations) for path in _expand_path(self.path)
+        ]
 
-            if list_match is None:
-                configs.append(VirolutionConfig(path, self.generations))
-                continue
 
-            for item in list_match.group(1).split(","):
-                expanded_path = path.replace(list_match.group(0), item)
-                expansion_stack.append(expanded_path)
+def _expand_path(path: str) -> List[str]:
+    paths = []
+    expansion_stack = [path]
+    list_regex = re.compile("\[(.*?)\]")
+    while expansion_stack:
+        path = expansion_stack.pop()
+        list_match = re.search(list_regex, path)
 
-        return configs
+        if list_match is None:
+            paths.append(path)
+            continue
+
+        for item in list_match.group(1).split(","):
+            expanded_path = path.replace(list_match.group(0), item)
+            expansion_stack.append(expanded_path)
+
+    return paths
