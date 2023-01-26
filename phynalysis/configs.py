@@ -25,7 +25,8 @@ class BeastConfig(JSONWizard, YAMLWizard):
         if self.query == "":
             return "all"
         return (
-            self.query.replace(" ", "_")
+            self.query.replace(", ", ",")
+            .replace(" ", "_")
             .replace("<", "lt")
             .replace(">", "gt")
             .replace("[", "")
@@ -42,6 +43,7 @@ class BeastConfig(JSONWizard, YAMLWizard):
             self.template,
             self.sample,
             self.encoded_query,
+            str(self.n_samples),
             self.encoded_seed,
         )
         return config_path
@@ -74,7 +76,7 @@ def _expand_path(path: str) -> List[str]:
     expansion_stack = [path]
     list_regex = re.compile("\[(.*?)\]")
     while expansion_stack:
-        path = expansion_stack.pop()
+        path = expansion_stack.pop(0)
         list_match = re.search(list_regex, path)
 
         if list_match is None:
