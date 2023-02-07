@@ -32,14 +32,14 @@ class ParsePath(argparse.Action):
             setattr(namespace, self.dest, values)
 
 
-class ParseBalanceGroups(argparse.Action):
+class ParseBalanceWeights(argparse.Action):
     def __call__(self, parser, namespace, values, option_string=None):
-        setattr(namespace, self.dest, dict)
+        setattr(namespace, self.dest, defaultdict(lambda: 0))
         if isinstance(values, str):
             values = [values]
         for value in values:
             key, value = value.split("=") if "=" in value else (value, 1)
-            getattr(namespace, self.dest)[key] = value
+            getattr(namespace, self.dest)[key] = int(value)
 
 
 def main():
@@ -124,8 +124,14 @@ def main():
     )
     sample_parser.add_argument(
         "--balance-groups",
-        action=ParseBalanceGroups,
+        nargs="*",
         help="Groups to balance.",
+    )
+    sample_parser.add_argument(
+        "--balance-weights",
+        nargs="*",
+        action=ParseBalanceWeights,
+        help="Weights for groups to balance",
     )
     sample_parser.add_argument(
         "--replace-samples",
