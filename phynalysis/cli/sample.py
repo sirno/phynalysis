@@ -9,10 +9,11 @@ def sample(args):
 
     if args.n_samples:
         if args.balance_groups is not None:
-            groups = data.groupby(args.balance_groups)
+            total_weights = sum(args.balance_groups.values())
+            groups = data.groupby(args.balance_groups.keys())
             data = groups.apply(
                 lambda group: group.sample(
-                    args.n_samples // len(groups),
+                    args.n_samples * args.balance_groups[group] // total_weights,
                     weights="count",
                     replace=args.replace_samples,
                     random_state=args.random_state,
