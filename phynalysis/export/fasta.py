@@ -8,7 +8,7 @@ DEFAULT_TEMPLATE = """
 
 
 def _format_data(ids, matrix):
-    return "\n".join([f">{name}\n{sequence}" for name, sequence in zip(ids, matrix)])
+    return "\n".join(f">{name}\n{sequence}" for name, sequence in zip(ids, matrix))
 
 
 def get_fasta(data, reference, template=None):
@@ -40,4 +40,4 @@ def get_fasta(data, reference, template=None):
 
     sequences_matrix = haplotypes_to_matrix(reference, data["haplotype"])
 
-    return template.format(data=_format_data(data["id"], sequences_matrix))
+    return template.format(data=_format_data(data["id"], sequences_matrix)).strip("\n")
