@@ -101,6 +101,7 @@ def main():
         "-t",
         "--template",
         action=ParseTemplate,
+        default=defaultdict(lambda: None),
         help="Template file.",
     )
     convert_parser.set_defaults(func=convert)
