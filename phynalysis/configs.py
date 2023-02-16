@@ -64,6 +64,8 @@ class VirolutionConfig(JSONWizard, YAMLWizard):
     path: str
     generations: int
 
+    threads: int = 1
+
     def expand_path(self) -> List[VirolutionConfig]:
         """Expand a path with list syntax into a list of paths."""
         return [
