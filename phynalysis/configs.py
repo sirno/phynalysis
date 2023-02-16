@@ -53,7 +53,13 @@ class BeastConfig(JSONWizard, YAMLWizard):
         template_paths = _expand_path(self.template)
         sample_paths = _expand_path(self.sample)
         return [
-            BeastConfig(**{**self.__dict__, "template": template, "sample": sample})
+            BeastConfig.from_dict(
+                {
+                    **self.__dict__,
+                    "template": template,
+                    "sample": sample,
+                }
+            )
             for template in template_paths
             for sample in sample_paths
         ]
@@ -65,11 +71,13 @@ class VirolutionConfig(JSONWizard, YAMLWizard):
     generations: int
 
     threads: int = 1
+    time: str = "04-00"
 
     def expand_path(self) -> List[VirolutionConfig]:
         """Expand a path with list syntax into a list of paths."""
         return [
-            VirolutionConfig(path, self.generations) for path in _expand_path(self.path)
+            VirolutionConfig.from_dict({**self.__dict__, "path": path})
+            for path in _expand_path(self.path)
         ]
 
 
