@@ -72,11 +72,20 @@ class PhynalysisRemoteClient:
         """Put a file."""
         self.sftp_client.put(local_path, remote_path)
 
-    def execute(self, command, print_output=True):
+    def execute(self, command, print_output=True, print_error=True):
         """Execute a command."""
         stdin, stdout, stderr = self.ssh_client.exec_command(command)
-        if print_output:
-            rich.print(stdout.read().decode("utf-8").strip())
+
+        if print_output and stdout.channel.recv_ready():
+            output = stdout.read().decode("utf-8").strip()
+            if output:
+                rich.print(output)
+
+        if print_error:
+            error = stderr.read().decode("utf-8").strip()
+            if error:
+                rich.print(f"[red]{error}")
+
         return stdout.channel.recv_exit_status()
 
     def find(self, path, pattern):
