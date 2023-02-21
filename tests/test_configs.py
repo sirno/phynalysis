@@ -61,7 +61,7 @@ def test_beast_config_expand_paths():
 
 
 def test_virolution_config_expand_path():
-    config = VirolutionConfig(path="path[1,2]", generations=100)
+    config = VirolutionConfig(path="path[1,2]", generations=100, compartments=1)
     configs = config.expand_path()
     for idx, config in enumerate(configs):
         assert config.path == f"path{idx + 1}"
