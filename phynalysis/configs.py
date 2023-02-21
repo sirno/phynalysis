@@ -69,6 +69,7 @@ class BeastConfig(JSONWizard, YAMLWizard):
 class VirolutionConfig(JSONWizard, YAMLWizard):
     path: str
     generations: int
+    compartments: int
 
     threads: int = 1
     time: str = "04-00"
