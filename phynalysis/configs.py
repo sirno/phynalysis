@@ -7,7 +7,7 @@ import re
 
 from dataclasses import dataclass
 from dataclass_wizard import JSONWizard, YAMLWizard
-from typing import List
+from typing import List, Union
 
 
 @dataclass
@@ -39,6 +39,7 @@ class BeastConfig(JSONWizard, YAMLWizard):
         return f"phyn_seed_{self.phyn_seed}_beast_seed_{self.beast_seed}"
 
     def config_path(self):
+        """Return the path to the config file."""
         config_path = os.path.join(
             self.template,
             self.sample,
@@ -71,14 +72,25 @@ class VirolutionConfig(JSONWizard, YAMLWizard):
     generations: int
     compartments: int
 
+    run: Union[int, None] = None
+
     threads: int = 1
     time: str = "04-00"
+    n_runs: int = 1
+
+    def config_path(self):
+        """Return the path to the config file."""
+        if self.n_runs == 1:
+            return self.path
+
+        return os.path.join(self.path, f"run_{self.n_runs}")
 
     def expand_path(self) -> List[VirolutionConfig]:
         """Expand a path with list syntax into a list of paths."""
         return [
-            VirolutionConfig.from_dict({**self.__dict__, "path": path})
+            VirolutionConfig.from_dict({**self.__dict__, "path": path, "run": run})
             for path in _expand_path(self.path)
+            for run in range(self.n_runs)
         ]
 
 
