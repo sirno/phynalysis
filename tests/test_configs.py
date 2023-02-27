@@ -1,6 +1,8 @@
 """Test configs module."""
 
-from phynalysis.configs import BeastConfig, VirolutionConfig
+from phynalysis.configs import BeastConfig, VirolutionConfig, VirolutionSettings
+import yaml
+import sys
 
 
 def test_beast_config_encode_query():
@@ -65,3 +67,46 @@ def test_virolution_config_expand_path():
     configs = config.expand_path()
     for idx, config in enumerate(configs):
         assert config.path == f"path{idx + 1}"
+
+
+def test_virolution_settings():
+    config = """\
+mutation_rate: 1e-6
+recombination_rate: 0
+host_population_size: 100000000
+infection_fraction: 0.7
+basic_reproductive_number: 100.0
+max_population: 100000000
+dilution: 0.02
+substitution_matrix:
+- - 0.0
+  - 1.0
+  - 1.0
+  - 1.0
+- - 1.0
+  - 0.0
+  - 1.0
+  - 1.0
+- - 1.0
+  - 1.0
+  - 0.0
+  - 1.0
+- - 1.0
+  - 1.0
+  - 1.0
+  - 0.0
+fitness_model:
+  distribution: !Exponential
+    weights:
+      beneficial: 0.29
+      deleterious: 0.51
+      lethal: 0.2
+      neutral: 0.0
+    lambda_beneficial: 0.03
+    lambda_deleterious: 0.21
+  utility: !Algebraic
+    upper: 1.5
+"""
+    settings = VirolutionSettings.from_yaml(config)
+    config2 = settings.to_yaml()
+    assert config == config2
