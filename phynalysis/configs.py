@@ -9,8 +9,12 @@ import re
 from collections import OrderedDict
 from dataclasses import dataclass
 from dataclass_wizard import JSONWizard, YAMLWizard
+from random import randint
 from typing import Dict, List, Union
+
 import yaml
+
+from phynalysis.export.formatter import IncrementalFormatter
 
 
 class Serializer:
@@ -72,6 +76,11 @@ class Serializer:
             return dump
 
         raise TypeError(f"Cannot load {cls.__name__} from {dump}")
+
+    @classmethod
+    def from_yaml_file(cls, path) -> Serializer:
+        with open(path, "r") as f:
+            return cls.from_yaml(f.read())
 
     @classmethod
     def show_tag(cls, subclass) -> Serializer:
@@ -256,9 +265,49 @@ class VirolutionSettings(Serializer):
 class PlanRecord(Serializer):
     """Plan record."""
 
-    generation: int
+    generation: str
     event: str
-    value: Union[str, int]
+    value: str
+
+
+@dataclass(slots=True)
+class TransmissionSample(Serializer):
+    """Plan record sample."""
+
+    frequency_range: str
+
+    def get_plan_records(self) -> List[PlanRecord]:
+        """Get the plan records."""
+        fwd_generation_template = "({migration_offset} + {}) % {migration_period}"
+        rev_generation_template = "{} % {migration_period}"
+
+        range_regex = re.compile(r"(?P<start>\d+)\.\.(?P<end>\d+)")
+        match = range_regex.match(self.frequency_range)
+        migration_frequency = randint(
+            int(match.group("start")), int(match.group("end"))
+        )
+
+        fwd_generation = IncrementalFormatter().format(
+            fwd_generation_template,
+            migration_offset=migration_frequency,
+            migration_period=2 * migration_frequency,
+        )
+        rev_generation = IncrementalFormatter().format(
+            rev_generation_template,
+            migration_period=2 * migration_frequency,
+        )
+        return [
+            PlanRecord(
+                generation=fwd_generation,
+                event="transmission",
+                value="migration_fwd",
+            ),
+            PlanRecord(
+                generation=rev_generation,
+                event="transmission",
+                value="migration_rev",
+            ),
+        ]
 
 
 @dataclass(slots=True)
@@ -268,18 +317,34 @@ class RunConfig(Serializer):
     configs: List[VirolutionSettings]
     plan: List[PlanRecord]
 
+    def sample_plan(self):
+        """Sample the plan."""
+        plan = []
+        for entry in self.plan:
+            if hasattr(entry, "get_plan_records"):
+                plan.extend(entry.get_plan_records())
+            else:
+                plan.append(entry)
+        self.plan = plan
+
     def generate_virolution_configuration(self, path=".") -> None:
         """Generate a virolution configuration."""
-        for idx, config in self.configs:
+        os.makedirs(path, exist_ok=True)
+
+        for idx, config in enumerate(self.configs):
             config_path = os.path.join(path, f"config_{idx:03d}.yaml")
             config.to_yaml_file(config_path)
 
         plan_path = os.path.join(path, "plan.csv")
-        plan_writer = csv.writer(
-            plan_path, delimiter=";", fieldnames=PlanRecord.__slots__
-        )
-        for record in self.plan:
-            plan_writer.writerow(record.to_dict())
+        with open(plan_path, "w") as plan_file:
+            plan_writer = csv.DictWriter(
+                plan_file,
+                delimiter=";",
+                fieldnames=PlanRecord.__slots__,
+            )
+            plan_writer.writeheader()
+            for record in self.plan:
+                plan_writer.writerow(record.to_dict())
 
 
 def _expand_path(path: str) -> List[str]:
