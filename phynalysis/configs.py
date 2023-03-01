@@ -247,7 +247,7 @@ class FitnessModel(Serializer):
 
 
 @dataclass(slots=True)
-class VirolutionSettings(Serializer):
+class SimulationParameters(Serializer):
     """Virolution settings."""
 
     mutation_rate: float
@@ -314,18 +314,19 @@ class TransmissionSample(Serializer):
 class RunConfig(Serializer):
     """Run settings."""
 
-    configs: List[VirolutionSettings]
-    plan: List[PlanRecord]
+    simulation_parameters: List[SimulationParameters]
+    simulation_plan: List[PlanRecord]
 
-    def sample_plan(self):
+    def sample_plan(self) -> RunConfig:
         """Sample the plan."""
         plan = []
-        for entry in self.plan:
+        for entry in self.simulation_plan:
             if hasattr(entry, "get_plan_records"):
                 plan.extend(entry.get_plan_records())
             else:
                 plan.append(entry)
-        self.plan = plan
+
+        return RunConfig(self.simulation_parameters, plan)
 
     def generate_virolution_configuration(self, path=".") -> None:
         """Generate a virolution configuration."""
@@ -343,7 +344,7 @@ class RunConfig(Serializer):
                 fieldnames=PlanRecord.__slots__,
             )
             plan_writer.writeheader()
-            for record in self.plan:
+            for record in self.simulation_plan:
                 plan_writer.writerow(record.to_dict())
 
 
