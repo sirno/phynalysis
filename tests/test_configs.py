@@ -1,6 +1,6 @@
 """Test configs module."""
 
-from phynalysis.configs import BeastConfig, VirolutionConfig, VirolutionSettings
+from phynalysis.configs import BeastConfig, VirolutionConfig, SimulationParameters
 import yaml
 import sys
 
@@ -107,6 +107,6 @@ fitness_model:
   utility: !Algebraic
     upper: 1.5
 """
-    settings = VirolutionSettings.from_yaml(config)
+    settings = SimulationParameters.from_yaml(config)
     config2 = settings.to_yaml()
     assert config == config2

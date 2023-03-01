@@ -10,7 +10,7 @@ from collections import OrderedDict
 from dataclasses import dataclass
 from dataclass_wizard import JSONWizard, YAMLWizard
 from random import randint
-from typing import Dict, List, Union
+from typing import Dict, List, Union, get_type_hints
 
 import yaml
 
@@ -20,12 +20,13 @@ from phynalysis.export.formatter import IncrementalFormatter
 class Serializer:
     """Serialize to YAML."""
 
-    def __init_subclass__(cls, show_tag=False) -> None:
+    def __init_subclass__(cls) -> None:
         # Add constructor to the yaml decoder
         def construct_yaml(
             loader: yaml.SafeLoader, node: yaml.nodes.MappingNode
         ) -> cls:
-            return cls(**loader.construct_mapping(node))
+            value_map = loader.construct_mapping(node)
+            return cls(**value_map)
 
         yaml.SafeLoader.add_constructor(f"!{cls.__name__}", construct_yaml)
 
@@ -67,6 +68,9 @@ class Serializer:
 
     @classmethod
     def from_yaml(cls, yaml_string: str) -> Serializer:
+        if not yaml_string.startswith(f"!{cls.__name__}"):
+            yaml_string = f"!{cls.__name__}\n{yaml_string}"
+
         dump = yaml.safe_load(yaml_string)
 
         if isinstance(dump, dict):
@@ -212,27 +216,27 @@ plan:
 
 @Serializer.show_tag
 @dataclass(slots=True)
-class Algebraic(Serializer, show_tag=True):
+class Algebraic(Serializer):
     upper: float
 
 
 @Serializer.show_tag
 @dataclass(slots=True)
-class Linear(Serializer, show_tag=True):
+class Linear(Serializer):
     pass
 
 
 @Serializer.show_tag
 @dataclass(slots=True)
-class Exponential(Serializer, show_tag=True):
-    weights: OrderedDict[str, float]
+class Exponential(Serializer):
+    weights: dict[str, float]
     lambda_beneficial: float
     lambda_deleterious: float
 
 
 @Serializer.show_tag
 @dataclass(slots=True)
-class Neutral(Serializer, show_tag=True):
+class Neutral(Serializer):
     pass
 
 
@@ -351,17 +355,30 @@ class RunConfig(Serializer):
 def _expand_path(path: str) -> List[str]:
     paths = []
     expansion_stack = [path]
+    range_regex = re.compile(r"\[(?P<start>\d+)\.\.(?P<end>\d+)\]")
     list_regex = re.compile("\[(.*?)\]")
     while expansion_stack:
         path = expansion_stack.pop(0)
-        list_match = re.search(list_regex, path)
 
-        if list_match is None:
-            paths.append(path)
+        range_match = re.search(range_regex, path)
+
+        if range_match:
+            for item in range(
+                int(range_match.group("start")),
+                int(range_match.group("end")),
+            ):
+                expanded_path = re.sub(range_regex, str(item), path, count=1)
+                expansion_stack.append(expanded_path)
             continue
 
-        for item in list_match.group(1).split(","):
-            expanded_path = path.replace(list_match.group(0), item)
-            expansion_stack.append(expanded_path)
+        list_match = re.search(list_regex, path)
+
+        if list_match:
+            for item in list_match.group(1).split(","):
+                expanded_path = re.sub(list_regex, item, path, count=1)
+                expansion_stack.append(expanded_path)
+            continue
+
+        paths.append(path)
 
     return paths
