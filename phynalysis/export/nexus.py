@@ -1,6 +1,6 @@
 """Export nexus format."""
 
-from ..transform import haplotypes_to_matrix
+from ..transform import haplotypes_to_sequences
 from .formatter import IncrementalFormatter
 
 DEFAULT_TEMPLATE = """
@@ -53,7 +53,7 @@ def get_nexus(data, reference, template=None):
     if template is None:
         template = DEFAULT_TEMPLATE
 
-    sequences_matrix = haplotypes_to_matrix(reference, data["haplotype"])
+    sequences_matrix = haplotypes_to_sequences(reference, data["haplotype"])
 
     return IncrementalFormatter().format(
         template,

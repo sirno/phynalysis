@@ -5,7 +5,7 @@ from phynalysis.transform import (
     haplotype_to_set,
     haplotype_to_dict,
     haplotype_to_string,
-    haplotypes_to_matrix,
+    haplotypes_to_sequences,
 )
 
 
@@ -58,9 +58,9 @@ haplotypes = [
 ]
 
 
-def test_haplotypes_to_matrix():
+def test_haplotypes_to_sequences():
     """Test `haplotypes_to_phylip`."""
-    assert haplotypes_to_matrix(reference, haplotypes) == [
+    assert haplotypes_to_sequences(reference, haplotypes) == [
         "AA---AA",
         "GA---AA",
         "AA---AA",

@@ -355,7 +355,7 @@ class RunConfig(Serializer):
 def _expand_path(path: str) -> List[str]:
     paths = []
     expansion_stack = [path]
-    range_regex = re.compile(r"\[(?P<start>\d+)\.\.(?P<end>\d+)\]")
+    range_regex = re.compile(r"\[(?P<start>\d+)-(?P<end>\d+)\]")
     list_regex = re.compile("\[(.*?)\]")
     while expansion_stack:
         path = expansion_stack.pop(0)
@@ -365,7 +365,7 @@ def _expand_path(path: str) -> List[str]:
         if range_match:
             for item in range(
                 int(range_match.group("start")),
-                int(range_match.group("end")),
+                int(range_match.group("end")) + 1,
             ):
                 expanded_path = re.sub(range_regex, str(item), path, count=1)
                 expansion_stack.append(expanded_path)
@@ -381,4 +381,4 @@ def _expand_path(path: str) -> List[str]:
 
         paths.append(path)
 
-    return paths
+    return sorted(paths)

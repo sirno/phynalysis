@@ -1,6 +1,6 @@
 """Export xml format."""
 
-from ..transform import haplotypes_to_matrix
+from ..transform import haplotypes_to_sequences
 from .formatter import IncrementalFormatter
 
 
@@ -55,7 +55,7 @@ def get_xml(data, reference, template=None):
     if not "time" in data.columns:
         raise ValueError("Dataframe must contain column 'time'.")
 
-    sequences_matrix = haplotypes_to_matrix(reference, data["haplotype"])
+    sequences_matrix = haplotypes_to_sequences(reference, data["haplotype"])
 
     content = {}
 

@@ -9,6 +9,8 @@ Glossary:
     - haplotypes: A list of haplotypes
 """
 
+import numpy as np
+
 from typing import Dict, List, Set, Tuple, Union
 
 Change = Tuple[int, str]
@@ -18,6 +20,13 @@ HaplotypeSet = Set[Change]
 HaplotypeDict = Dict[int, str]
 
 Haplotype = Union[str, HaplotypeList, HaplotypeSet, HaplotypeDict]
+
+_ENCODING = {
+    "A": 0,
+    "C": 1,
+    "G": 2,
+    "T": 3,
+}
 
 
 def _parse_haplotype_to_list(haplotype: str) -> HaplotypeList:
@@ -128,7 +137,7 @@ def haplotype_to_string(haplotype: Haplotype) -> str:
     )
 
 
-def haplotypes_to_matrix(reference: str, haplotypes: List[Haplotype]) -> List[str]:
+def haplotypes_to_sequences(reference: str, haplotypes: List[Haplotype]) -> List[str]:
     """Convert haplotypes to matrix of aligned symbols."""
     sequences = []
     for haplotype in haplotypes:
@@ -155,3 +164,24 @@ def haplotypes_to_matrix(reference: str, haplotypes: List[Haplotype]) -> List[st
     ]
 
     return sequences_lip
+
+
+def haplotypes_to_matrix(reference: str, haplotypes: List[Haplotype]) -> np.ndarray:
+    """Convert haplotypes to matrix of aligned symbols."""
+    encoded_reference = [int(_ENCODING[c]) for c in reference]
+    sequences = []
+    for haplotype in haplotypes:
+        # create list with characters for each position
+        sequence = encoded_reference.copy()
+        # transform haplotype to list representation
+        haplotype = haplotype_to_list(haplotype)
+        # add all changes to sequence
+        for position, mutation in haplotype:
+            if "->" in mutation:
+                sequence[position] = _ENCODING[mutation[-1]]
+            else:
+                NotImplementedError(f"Unknown mutation type {mutation}.")
+        if sequence:
+            sequences.append(sequence)
+
+    return sequences

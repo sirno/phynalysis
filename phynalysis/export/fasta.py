@@ -1,6 +1,6 @@
 """Export fasta format."""
 
-from ..transform import haplotypes_to_matrix
+from ..transform import haplotypes_to_sequences
 
 DEFAULT_TEMPLATE = """
 {data}
@@ -38,6 +38,6 @@ def get_fasta(data, reference, template=None):
     if template is None:
         template = DEFAULT_TEMPLATE
 
-    sequences_matrix = haplotypes_to_matrix(reference, data["haplotype"])
+    sequences_matrix = haplotypes_to_sequences(reference, data["haplotype"])
 
     return template.format(data=_format_data(data["id"], sequences_matrix)).strip("\n")
