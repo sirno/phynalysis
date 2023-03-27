@@ -167,7 +167,10 @@ def haplotypes_to_sequences(reference: str, haplotypes: List[Haplotype]) -> List
 
 
 def haplotypes_to_matrix(reference: str, haplotypes: List[Haplotype]) -> np.ndarray:
-    """Convert haplotypes to matrix of aligned symbols."""
+    """Convert haplotypes to matrix of aligned encoded symbols.
+
+    Note: Can only handle substitutions.
+    """
     encoded_reference = [int(_ENCODING[c]) for c in reference]
     sequences = []
     for haplotype in haplotypes:
