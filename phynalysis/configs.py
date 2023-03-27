@@ -8,7 +8,6 @@ import re
 
 from collections import OrderedDict
 from dataclasses import dataclass
-from dataclass_wizard import JSONWizard, YAMLWizard
 from random import randint
 from typing import Dict, List, Union, get_type_hints
 
@@ -91,8 +90,8 @@ class Serializer:
         subclass._show_tag = True
 
 
-@dataclass
-class BeastConfig(JSONWizard, YAMLWizard):
+@dataclass(slots=True)
+class BeastConfig(Serializer):
     template: str
     sample: str
     n_samples: int
@@ -137,7 +136,7 @@ class BeastConfig(JSONWizard, YAMLWizard):
         return [
             BeastConfig.from_dict(
                 {
-                    **self.__dict__,
+                    **self.to_dict(),
                     "template": template,
                     "sample": sample,
                 }
@@ -147,8 +146,8 @@ class BeastConfig(JSONWizard, YAMLWizard):
         ]
 
 
-@dataclass
-class VirolutionConfig(JSONWizard, YAMLWizard):
+@dataclass(slots=True)
+class VirolutionConfig(Serializer):
     path: str
     generations: int
     compartments: int
@@ -157,6 +156,7 @@ class VirolutionConfig(JSONWizard, YAMLWizard):
 
     threads: int = 1
     time: str = "04-00"
+    mem_per_cpu: str = "8G"
     n_runs: int = 1
 
     def config_path(self):
@@ -169,7 +169,7 @@ class VirolutionConfig(JSONWizard, YAMLWizard):
     def expand_path(self) -> List[VirolutionConfig]:
         """Expand a path with list syntax into a list of paths."""
         return [
-            VirolutionConfig.from_dict({**self.__dict__, "path": path, "run": run})
+            VirolutionConfig.from_dict({**self.to_dict(), "path": path, "run": run})
             for path in _expand_path(self.path)
             for run in range(self.n_runs)
         ]
