@@ -76,12 +76,14 @@ class PhynalysisRemoteClient:
         """Execute a command."""
         stdin, stdout, stderr = self.ssh_client.exec_command(command)
 
+        exit_code = stdout.channel.recv_exit_status()
+
         if print_output and stdout.channel.recv_ready():
             output = stdout.read().decode("utf-8").strip()
             if output:
                 rich.print(output)
 
-        if print_error:
+        if print_error or exit_code != 0:
             error = stderr.read().decode("utf-8").strip()
             if error:
                 rich.print(f"[red]{error}")
