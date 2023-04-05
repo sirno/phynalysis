@@ -23,6 +23,8 @@ def _expand_path(path: str) -> list[str]:
             items = inner.split(",")
 
         for item in items:
+            if isinstance(item, int):
+                item = f"{item:05d}"
             expanded_path = re.sub(list_regex, item, path, count=1)
             expansion_stack.append(expanded_path)
 

@@ -67,6 +67,6 @@ class ContinuousMigrationSampler(SlotsSerializer):
             PlanRecord(
                 generation="{} % 1",
                 event="transmission",
-                value=f'"[[{passage_rate}, {migration_rate}],[{migration_rate}, {passage_rate}]]"'
+                value=f"[[{passage_rate}, {migration_rate}],[{migration_rate}, {passage_rate}]]"
             )
         ]
