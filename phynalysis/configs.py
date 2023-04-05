@@ -156,7 +156,7 @@ class VirolutionConfig(Serializer):
 
     threads: int = 1
     time: str = "04-00"
-    mem_per_cpu: str = "8G"
+    mem: str = "8G"
     n_runs: int = 1
 
     def config_path(self):
