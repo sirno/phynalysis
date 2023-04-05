@@ -1,13 +1,13 @@
 """Test configs module."""
 
-from phynalysis.configs import BeastConfig, VirolutionConfig, SimulationParameters
+from phynalysis.configs import BeastJobConfig, VirolutionJobConfig, SimulationParameters
 import yaml
 import sys
 
 
 def test_beast_config_encode_query():
     """Test encoding of query."""
-    config = BeastConfig(
+    config = BeastJobConfig(
         template="template",
         sample="sample",
         n_samples=100,
@@ -18,7 +18,7 @@ def test_beast_config_encode_query():
 
 def test_beast_config_encode_seed():
     """Test encoding of seed."""
-    config = BeastConfig(
+    config = BeastJobConfig(
         template="template",
         sample="sample",
         n_samples=100,
@@ -30,7 +30,7 @@ def test_beast_config_encode_seed():
 
 def test_beast_config_config_path():
     """Test config path."""
-    config = BeastConfig(
+    config = BeastJobConfig(
         template="template",
         sample="sample",
         n_samples=100,
@@ -41,21 +41,21 @@ def test_beast_config_config_path():
 
 
 def test_beast_config_expand_template_path():
-    config = BeastConfig(template="template[1,2]", sample="sample", n_samples=100)
+    config = BeastJobConfig(template="template[1,2]", sample="sample", n_samples=100)
     configs = config.expand_paths()
     for idx, config in enumerate(configs):
         assert config.template == f"template{idx + 1}"
 
 
 def test_beast_config_expand_sample_path():
-    config = BeastConfig(template="template", sample="sample[1,2]", n_samples=100)
+    config = BeastJobConfig(template="template", sample="sample[1,2]", n_samples=100)
     configs = config.expand_paths()
     for idx, config in enumerate(configs):
         assert config.sample == f"sample{idx + 1}"
 
 
 def test_beast_config_expand_paths():
-    config = BeastConfig(template="template[1,2]", sample="sample[1,2]", n_samples=100)
+    config = BeastJobConfig(template="template[1,2]", sample="sample[1,2]", n_samples=100)
     configs = config.expand_paths()
     for idx, config in enumerate(configs):
         assert config.template == f"template{idx // 2 + 1}"
@@ -63,7 +63,7 @@ def test_beast_config_expand_paths():
 
 
 def test_virolution_config_expand_path():
-    config = VirolutionConfig(path="path[1,2]", generations=100, compartments=1)
+    config = VirolutionJobConfig(path="path[1,2]", generations=100, compartments=1)
     configs = config.expand_path()
     for idx, config in enumerate(configs):
         assert config.path == f"path{idx + 1}"
