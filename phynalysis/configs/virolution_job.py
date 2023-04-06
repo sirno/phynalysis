@@ -19,24 +19,19 @@ class VirolutionJobConfig(SlotsSerializer):
     generations: int
     compartments: int
 
-    _run: int = 1
+    array: str = ""
 
     threads: int = 1
     time: str = "04-00"
     mem: str = "8G"
-    n_runs: int = 1
 
     def config_path(self):
         """Return the path to the config file."""
-        if self.n_runs == 1:
-            return self.path
-
-        return os.path.join(self.path, f"run_{self._run}")
+        return self.path
 
     def expand_path(self) -> list[Self]:
         """Expand a path with list syntax into a list of paths."""
         return [
-            VirolutionJobConfig.from_dict({**self.to_dict(), "path": path, "_run": run})
+            VirolutionJobConfig.from_dict({**self.to_dict(), "path": path})
             for path in _expand_path(self.path)
-            for run in range(self.n_runs)
         ]
