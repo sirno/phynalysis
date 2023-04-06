@@ -2,6 +2,7 @@
 
 import re
 
+
 def _expand_path(path: str) -> list[str]:
     paths = []
     expansion_stack = [path]

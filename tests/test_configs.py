@@ -55,7 +55,9 @@ def test_beast_config_expand_sample_path():
 
 
 def test_beast_config_expand_paths():
-    config = BeastJobConfig(template="template[1,2]", sample="sample[1,2]", n_samples=100)
+    config = BeastJobConfig(
+        template="template[1,2]", sample="sample[1,2]", n_samples=100
+    )
     configs = config.expand_paths()
     for idx, config in enumerate(configs):
         assert config.template == f"template{idx // 2 + 1}"

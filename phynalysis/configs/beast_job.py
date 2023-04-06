@@ -13,6 +13,7 @@ from typing_extensions import Self
 
 from .utils import _expand_path
 
+
 @dataclass(slots=True)
 class BeastJobConfig(SlotsSerializer):
     template: str

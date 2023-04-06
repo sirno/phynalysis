@@ -11,6 +11,7 @@ from phynalysis.export.formatter import IncrementalFormatter
 
 from .virolution_settings import PlanRecord
 
+
 @dataclass(slots=True)
 class DiscreteMigrationSampler(SlotsSerializer):
     """Sample plan records for discrete migration events."""
@@ -49,6 +50,7 @@ class DiscreteMigrationSampler(SlotsSerializer):
             ),
         ]
 
+
 @dataclass(slots=True)
 class ContinuousMigrationSampler(SlotsSerializer):
     """Sample plan records for continuous migration events."""
@@ -67,6 +69,6 @@ class ContinuousMigrationSampler(SlotsSerializer):
             PlanRecord(
                 generation="{} % 1",
                 event="transmission",
-                value=f"[[{passage_rate}, {migration_rate}],[{migration_rate}, {passage_rate}]]"
+                value=f"[[{passage_rate}, {migration_rate}],[{migration_rate}, {passage_rate}]]",
             )
         ]
