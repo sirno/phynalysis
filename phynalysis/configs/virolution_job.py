@@ -4,11 +4,8 @@ from __future__ import annotations
 
 __all__ = ["VirolutionJobConfig"]
 
-import os
-
 from dataclasses import dataclass
 from serious_serializers import SlotsSerializer
-from typing import Union
 from typing_extensions import Self
 
 from .utils import _expand_path

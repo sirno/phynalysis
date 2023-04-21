@@ -13,7 +13,7 @@ import csv
 import os
 
 from dataclasses import dataclass
-from serious_serializers import SlotsSerializer
+from slot_machine import SlotsSerializer
 from typing import Union
 from typing_extensions import Self
 

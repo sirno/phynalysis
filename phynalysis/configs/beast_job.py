@@ -8,7 +8,7 @@ __all__ = ["BeastJobConfig"]
 import os
 
 from dataclasses import dataclass
-from serious_serializers import SlotsSerializer
+from slot_machine import SlotsSerializer
 from typing_extensions import Self
 
 from .utils import _expand_path
