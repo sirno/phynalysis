@@ -3,7 +3,7 @@
 import re
 
 
-def _expand_path(path: str) -> list[str]:
+def _expand_path(path: str, fmt: str = None) -> list[str]:
     paths = []
     expansion_stack = [path]
     list_regex = re.compile("\[(.*?)\]")
@@ -18,14 +18,17 @@ def _expand_path(path: str) -> list[str]:
 
         inner = list_match.group(1)
 
+        if ":" in inner:
+            fmt = f'%{inner.split(":")[0]}'
+
         if ".." in inner:
             items = range(*map(int, inner.split("..")))
         else:
             items = inner.split(",")
 
         for item in items:
-            if isinstance(item, int):
-                item = f"{item:05d}"
+            if fmt is not None:
+                item = fmt.format(item)
             expanded_path = re.sub(list_regex, item, path, count=1)
             expansion_stack.append(expanded_path)
 
