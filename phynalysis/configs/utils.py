@@ -19,7 +19,8 @@ def _expand_path(path: str, fmt: str = None) -> list[str]:
         inner = list_match.group(1)
 
         if ":" in inner:
-            fmt = f'%{inner.split(":")[0]}'
+            inner, fmt = inner.split(":")
+            fmt = f"%{fmt}"
 
         if ".." in inner:
             items = range(*map(int, inner.split("..")))
@@ -28,7 +29,7 @@ def _expand_path(path: str, fmt: str = None) -> list[str]:
 
         for item in items:
             if fmt is not None:
-                item = fmt.format(item)
+                item = fmt % item
             expanded_path = re.sub(list_regex, item, path, count=1)
             expansion_stack.append(expanded_path)
 

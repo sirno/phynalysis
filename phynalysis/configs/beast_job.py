@@ -31,6 +31,8 @@ class BeastJobConfig(SlotsSerializer):
         return (
             self.query.replace(", ", ",")
             .replace(" ", "_")
+            .replace("<=", "le")
+            .replace(">=", "ge")
             .replace("<", "lt")
             .replace(">", "gt")
             .replace("[", "")
