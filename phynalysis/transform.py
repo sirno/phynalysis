@@ -188,3 +188,28 @@ def haplotypes_to_matrix(reference: str, haplotypes: List[Haplotype]) -> np.ndar
             sequences.append(sequence)
 
     return sequences
+
+
+def haplotypes_to_frequencies(reference: str, haplotypes: List[Haplotype]) -> np.ndarray:
+    """Convert haplotypes to array of frequencies."""
+    counts = np.zeros((len(reference), 4))
+
+    # count all changes
+    for haplotype in haplotypes:
+        # transform haplotype to list representation
+        haplotype = haplotype_to_list(haplotype)
+        # add all changes to sequence
+        for position, mutation in haplotype:
+            if "->" in mutation:
+                counts[position, _ENCODING[mutation[-1]]] += 1
+            else:
+                NotImplementedError(f"Unknown mutation type {mutation}.")
+
+    # count occurrences of reference base
+    total = len(haplotypes)
+    for position in range(len(reference)):
+        ref_base = _ENCODING[reference[position]]
+        counts[position, ref_base] = total - counts[position].sum() + counts[position, ref_base]
+
+    # normalize counts
+    return counts / len(haplotypes)
