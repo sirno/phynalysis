@@ -9,15 +9,25 @@ Glossary:
     - haplotypes: A list of haplotypes
 """
 
+__all__ = [
+    "haplotype_to_list",
+    "haplotype_to_set",
+    "haplotype_to_dict",
+    "haplotype_to_string",
+    "haplotypes_to_sequences",
+    "haplotypes_to_matrix",
+    "haplotypes_to_frequencies",
+]
+
 import numpy as np
 
-from typing import Dict, List, Set, Tuple, Union
+from typing import Union
 
-Change = Tuple[int, str]
+Change = tuple[int, str]
 
-HaplotypeList = List[Change]
-HaplotypeSet = Set[Change]
-HaplotypeDict = Dict[int, str]
+HaplotypeList = list[Change]
+HaplotypeSet = set[Change]
+HaplotypeDict = dict[int, str]
 
 Haplotype = Union[str, HaplotypeList, HaplotypeSet, HaplotypeDict]
 
@@ -137,7 +147,7 @@ def haplotype_to_string(haplotype: Haplotype) -> str:
     )
 
 
-def haplotypes_to_sequences(reference: str, haplotypes: List[Haplotype]) -> List[str]:
+def haplotypes_to_sequences(reference: str, haplotypes: list[Haplotype]) -> list[str]:
     """Convert haplotypes to matrix of aligned symbols."""
     sequences = []
     for haplotype in haplotypes:
@@ -166,7 +176,7 @@ def haplotypes_to_sequences(reference: str, haplotypes: List[Haplotype]) -> List
     return sequences_lip
 
 
-def haplotypes_to_matrix(reference: str, haplotypes: List[Haplotype]) -> np.ndarray:
+def haplotypes_to_matrix(reference: str, haplotypes: list[Haplotype]) -> np.ndarray:
     """Convert haplotypes to matrix of aligned encoded symbols.
 
     Note: Can only handle substitutions.
@@ -190,7 +200,9 @@ def haplotypes_to_matrix(reference: str, haplotypes: List[Haplotype]) -> np.ndar
     return sequences
 
 
-def haplotypes_to_frequencies(reference: str, haplotypes: List[Haplotype]) -> np.ndarray:
+def haplotypes_to_frequencies(
+    reference: str, haplotypes: list[Haplotype]
+) -> np.ndarray:
     """Convert haplotypes to array of frequencies."""
     counts = np.zeros((len(reference), 4))
 
@@ -209,7 +221,9 @@ def haplotypes_to_frequencies(reference: str, haplotypes: List[Haplotype]) -> np
     total = len(haplotypes)
     for position in range(len(reference)):
         ref_base = _ENCODING[reference[position]]
-        counts[position, ref_base] = total - counts[position].sum() + counts[position, ref_base]
+        counts[position, ref_base] = (
+            total - counts[position].sum() + counts[position, ref_base]
+        )
 
     # normalize counts
     return counts / len(haplotypes)
