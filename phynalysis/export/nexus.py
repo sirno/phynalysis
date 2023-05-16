@@ -76,7 +76,10 @@ def write_nexus(path, data, reference, template=None):
     reference : str
         Reference sequence.
     template : str
-        Template for nexus file with {n_tax}, {n_char} and {data} as placeholders. If
-        None, the default template is used.
+        Template path for nexus file with {n_tax}, {n_char} and {data} as placeholders.
+        If None, the default template is used.
     """
+    if template is not None:
+        with open(template, "r") as template_file:
+            template = template_file.read()
     write(path, get_nexus(data, reference, template=template))

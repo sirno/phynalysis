@@ -56,7 +56,11 @@ def write_fasta(path, data, reference, template=None):
     reference : str
         Reference sequence.
     template : str
-        Template for fasta file with {data} as placeholder. If None, the default
+        Template path for fasta file with {data} as placeholder. If None, the default
         template is used.
     """
+    if template is not None:
+        with open(template) as f:
+            template = f.read()
+
     write(path, get_fasta(data, reference, template=template))

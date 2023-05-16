@@ -1,5 +1,7 @@
 """Export data to npy format."""
 
+import yaml
+
 import numpy as np
 import pandas as pd
 
@@ -39,19 +41,6 @@ def _get_frequencies(reference: str, haplotypes: pd.DataFrame):
     )
 
 
-def _load_mfed_ratios(template):
-    weights = template.simulation_parameters[0]["fitness_model"]["distribution"].weights
-
-    return np.array(
-        [
-            weights["neutral"],
-            weights["beneficial"],
-            weights["deleterious"],
-            weights["lethal"],
-        ]
-    )
-
-
 def write_npy(path, data, reference, template=None):
     """Write labeled data file.
 
@@ -67,7 +56,21 @@ def write_npy(path, data, reference, template=None):
         Template for labeled data should be a yaml file with the label as key. (This
         is technically not a template)
     """
+    if template is None:
+        raise ValueError(
+            "Template argument missing. For npy export, the template should contain a list of labels."
+        )
+
+    if not "haplotype" in data.columns:
+        raise ValueError("Dataframe must contain column 'haplotype'.")
+
+    if not "time" in data.columns:
+        raise ValueError("Dataframe must contain column 'time'.")
+
+    if not "compartment" in data.columns:
+        raise ValueError("Dataframe must contain column 'compartment'.")
+
     input = _get_frequencies(reference, data)
-    output = _load_mfed_ratios(template)
+    output = np.load(template)
 
     np.savez(path, input=input, output=output)

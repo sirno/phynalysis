@@ -70,7 +70,11 @@ def write_phylip(path, data, reference, template=None):
     reference : str
         Reference sequence.
     template : str
-        Template for phylip file with {n_tax}, {n_char} and {data} as placeholders. If
-        None, the default template is used.
+        Template path for phylip file with {n_tax}, {n_char} and {data} as placeholders.
+        If None, the default template is used.
     """
+    if template is not None:
+        with open(template, "r") as f:
+            template = f.read()
+
     write(path, get_phylip(data, reference, template))

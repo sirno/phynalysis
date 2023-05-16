@@ -82,7 +82,13 @@ def write_xml(path, data, reference, template=None):
     reference : str
         Reference sequence.
     template : str
-        Template for xml file with {sequence_data}, {time_data} and {count_data} as
+        Template path for xml file with {sequence_data}, {time_data} and {count_data} as
         placeholders.
     """
+    if template is None:
+        raise ValueError("Template must be provided for xml export.")
+
+    with open(template, "r") as f:
+        template = f.read()
+
     write(path, get_xml(data, reference, template))
