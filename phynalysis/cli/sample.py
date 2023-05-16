@@ -1,7 +1,6 @@
 """Sample subcommand."""
 
 import pandas as pd
-import sys
 
 
 def balanced_sample(data, args):
