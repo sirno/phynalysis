@@ -64,7 +64,7 @@ def convert(args):
             }
         )
     else:
-        data = haplotypes_data[["time", "haplotype", "count"]].copy()
+        data = haplotypes_data[["time", "compartment", "haplotype", "count"]].copy()
         data["lineage"] = (
             haplotypes_data.compartment
             + haplotypes_data.compartment.max() * haplotypes_data.replicate
