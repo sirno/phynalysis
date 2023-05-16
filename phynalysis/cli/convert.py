@@ -30,7 +30,7 @@ _suffixes = {
     "nexus": ".nex",
     "phylip": ".phylip",
     "xml": ".xml",
-    "npy": ".npy",
+    "npy": ".npz",
 }
 
 
