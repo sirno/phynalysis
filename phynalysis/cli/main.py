@@ -136,8 +136,6 @@ def main():
     )
     sample_parser.add_argument(
         "--n-samples-per-group",
-        type=bool,
-        default=False,
         action="store_true",
         help="Sample `--n-samples` per group. If this is set, `--balance-weight` is ignored.",
     )
