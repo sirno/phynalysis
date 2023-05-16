@@ -24,7 +24,7 @@ def _sort_haplotypes(haplotypes: pd.DataFrame):
 
 def _get_sorted_haplotypes(haplotypes, time, compartment):
     filtered = _filter_haplotypes(haplotypes, time, compartment)
-    return _sort_haplotypes(filtered["haplotypes"].reset_index(drop=True))
+    return _sort_haplotypes(filtered[["haplotype"]].reset_index(drop=True))
 
 
 def _get_frequencies(reference: str, haplotypes: pd.DataFrame):
