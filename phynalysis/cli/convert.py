@@ -7,15 +7,22 @@ from pathlib import Path
 
 import pandas as pd
 
-from phynalysis.export import get_fasta, get_nexus, get_phylip, get_xml
+from phynalysis.export import (
+    write_fasta,
+    write_nexus,
+    write_phylip,
+    write_xml,
+    write_npy,
+)
 
 from .utils import write
 
-_conversions = {
-    "fasta": get_fasta,
-    "nexus": get_nexus,
-    "phylip": get_phylip,
-    "xml": get_xml,
+_writers = {
+    "fasta": write_fasta,
+    "nexus": write_nexus,
+    "phylip": write_phylip,
+    "xml": write_xml,
+    "npy": write_npy,
 }
 
 _suffixes = {
@@ -23,13 +30,14 @@ _suffixes = {
     "nexus": ".nex",
     "phylip": ".phylip",
     "xml": ".xml",
+    "npy": ".npy",
 }
 
 
 def convert(args):
     """Convert command main function."""
     for format in args.format:
-        if format not in _conversions:
+        if format not in _writers:
             logging.error("Unknown format: %s", args.format)
             sys.exit(1)
 
@@ -82,12 +90,9 @@ def convert(args):
             with open(args.template[format], "r", encoding="utf8") as file_descriptor:
                 template = file_descriptor.read()
 
-        # convert data to desired format
-        content = _conversions[format](data, reference, template=template)
-
         # ensure output file has correct suffix
         if isinstance(args.output, Path):
             output_file = args.output.with_suffix(_suffixes[format])
 
-        # write content to file
-        write(output_file, content)
+        # convert data to desired format
+        _writers[format](output_file, data, reference, template=template)

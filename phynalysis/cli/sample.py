@@ -8,7 +8,9 @@ def balanced_sample(data, args):
     """Sample data with balanced groups."""
     groups = data.groupby(args.balance_groups, group_keys=False)
 
-    if args.balance_weights is None:
+    if args.n_samples_per_group:
+        size = lambda group: args.n_samples
+    elif args.balance_weights is None:
         size = lambda group: args.n_samples // len(groups)
     else:
         size = (

@@ -1,5 +1,6 @@
 """Export xml format."""
 
+from ..cli.utils import write
 from ..transform import haplotypes_to_sequences
 from .formatter import IncrementalFormatter
 
@@ -67,3 +68,21 @@ def get_xml(data, reference, template=None):
         content["type_data"] = _type_data(data)
 
     return IncrementalFormatter().format(template, **content)
+
+
+def write_xml(path, data, reference, template=None):
+    """Write xml formatted data to file.
+
+    Parameters
+    ----------
+    path : str
+        Path to file.
+    data : pandas.DataFrame
+        Dataframe with columns "haplotype", "id" and "time"
+    reference : str
+        Reference sequence.
+    template : str
+        Template for xml file with {sequence_data}, {time_data} and {count_data} as
+        placeholders.
+    """
+    write(path, get_xml(data, reference, template))

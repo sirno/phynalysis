@@ -1,5 +1,6 @@
 """Export fasta format."""
 
+from ..cli.utils import write
 from ..transform import haplotypes_to_sequences
 
 DEFAULT_TEMPLATE = """
@@ -41,3 +42,21 @@ def get_fasta(data, reference, template=None):
     sequences_matrix = haplotypes_to_sequences(reference, data["haplotype"])
 
     return template.format(data=_format_data(data["id"], sequences_matrix)).strip("\n")
+
+
+def write_fasta(path, data, reference, template=None):
+    """Write fasta file.
+
+    Parameters
+    ----------
+    path : str or pathlib.Path
+        Path to the output file.
+    data : pandas.DataFrame
+        Dataframe with columns "haplotype" and "id".
+    reference : str
+        Reference sequence.
+    template : str
+        Template for fasta file with {data} as placeholder. If None, the default
+        template is used.
+    """
+    write(path, get_fasta(data, reference, template=template))

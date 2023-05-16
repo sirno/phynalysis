@@ -1,5 +1,6 @@
 """Export phylip format."""
 
+from ..cli.utils import write
 from ..transform import haplotypes_to_sequences
 from .nexus import DEFAULT_TEMPLATE
 from .formatter import IncrementalFormatter
@@ -55,3 +56,21 @@ def get_phylip(data, reference, template=None):
         n_char=len(sequences_matrix[0]),
         data=_format_data(data["id"], sequences_matrix),
     )
+
+
+def write_phylip(path, data, reference, template=None):
+    """Write phylip formatted data to file.
+
+    Parameters
+    ----------
+    path : str
+        Output file.
+    data : pandas.DataFrame
+        Dataframe with columns "haplotype" and "id".
+    reference : str
+        Reference sequence.
+    template : str
+        Template for phylip file with {n_tax}, {n_char} and {data} as placeholders. If
+        None, the default template is used.
+    """
+    write(path, get_phylip(data, reference, template))

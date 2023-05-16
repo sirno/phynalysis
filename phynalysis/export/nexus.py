@@ -1,5 +1,6 @@
 """Export nexus format."""
 
+from ..cli.utils import write
 from ..transform import haplotypes_to_sequences
 from .formatter import IncrementalFormatter
 
@@ -61,3 +62,21 @@ def get_nexus(data, reference, template=None):
         n_char=len(sequences_matrix[0]),
         data=_format_data(data["id"], sequences_matrix),
     )
+
+
+def write_nexus(path, data, reference, template=None):
+    """Write nexus file.
+
+    Parameters
+    ----------
+    path : str
+        Path to file.
+    data : pandas.DataFrame
+        Dataframe with columns "haplotype" and "id".
+    reference : str
+        Reference sequence.
+    template : str
+        Template for nexus file with {n_tax}, {n_char} and {data} as placeholders. If
+        None, the default template is used.
+    """
+    write(path, get_nexus(data, reference, template=template))

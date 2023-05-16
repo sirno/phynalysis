@@ -135,6 +135,13 @@ def main():
         help="Weights for groups to balance",
     )
     sample_parser.add_argument(
+        "--n-samples-per-group",
+        type=bool,
+        default=False,
+        action="store_true",
+        help="Sample `--n-samples` per group. If this is set, `--balance-weight` is ignored.",
+    )
+    sample_parser.add_argument(
         "--replace-samples",
         action="store_true",
         help="Sample with replacement.",
