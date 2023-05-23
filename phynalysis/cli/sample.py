@@ -53,6 +53,7 @@ def sample_unique(data, args):
 
 
 def sample_random(data, args):
+    """Sample data randomly."""
     data = data.sample(
         args.n_samples,
         weights="count",

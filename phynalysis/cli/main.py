@@ -11,6 +11,7 @@ from .consensus import consensus
 from .convert import convert
 from .filter import filter
 from .haplotypes import haplotypes
+from .rescale import rescale
 from .sample import sample
 
 
@@ -155,6 +156,14 @@ def main():
     )
 
     sample_parser.set_defaults(func=sample)
+
+    rescale_parser = subparsers.add_parser(
+        "rescale",
+        help="Rescale data columns.",
+        parents=[common_parser, log_parser],
+    )
+    rescale_parser.add_argument("--columns", nargs="+", help="Columns to rescale.")
+    rescale_parser.set_defaults(func=rescale)
 
     haplotypes_parser = subparsers.add_parser(
         "haplotypes",
