@@ -124,6 +124,20 @@ def main():
         help="Random state.",
     )
     sample_parser.add_argument(
+        "--replace-samples",
+        action="store_true",
+        help="Sample with replacement.",
+    )
+    sample_parser.add_argument(
+        "--mode",
+        type=str,
+        default="random",
+        choices=["random", "balance", "unique"],
+        help="Sampling mode. One of: random, balance, unique. Default: random.",
+    )
+
+    # balance mode arguments
+    sample_parser.add_argument(
         "--balance-groups",
         nargs="*",
         help="Groups to balance.",
@@ -139,11 +153,7 @@ def main():
         action="store_true",
         help="Sample `--n-samples` per group. If this is set, `--balance-weight` is ignored.",
     )
-    sample_parser.add_argument(
-        "--replace-samples",
-        action="store_true",
-        help="Sample with replacement.",
-    )
+
     sample_parser.set_defaults(func=sample)
 
     haplotypes_parser = subparsers.add_parser(
