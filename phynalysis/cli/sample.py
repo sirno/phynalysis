@@ -47,7 +47,7 @@ def sample_unique(data, args):
     )
 
     data = pd.merge(data, haplotype_sample, on="haplotype")
-    data = data.groupby("haplotype", group_keys=False).first()
+    data = data.groupby("haplotype", group_keys=False).first().reset_index()
 
     data.to_csv(args.output, index=False)
 
