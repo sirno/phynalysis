@@ -10,3 +10,5 @@ def rescale(args):
 
     for column in args.columns:
         data[column] = data[column] / data[column].max()
+
+    data.to_csv(args.output, index=False)
