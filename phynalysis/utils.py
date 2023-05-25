@@ -17,6 +17,17 @@ def filter_haplotype_frequency(data, min_frequency):
     return data.loc[frequencies.ge(min_frequency)].copy()
 
 
+def balance_unique_haplotypes(data, groupby):
+    """Balance unique haplotypes by group."""
+    groups = data.reset_index().groupby(groupby)
+    min_count = groups.haplotype.count().min()
+    return (
+        groups.apply(lambda group: group.nlargest(min_count, "count"))
+        .reset_index(drop=True)
+        .set_index(data.index.names)
+    )
+
+
 def unstack(data):
     """Unstack haplotype data."""
     return data.reset_index().set_index(["haplotype", "sample_name"]).unstack()
