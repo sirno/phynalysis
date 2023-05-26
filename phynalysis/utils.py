@@ -28,22 +28,12 @@ def balance_unique_haplotypes(data, groupby):
     )
 
 
-def unstack(data):
-    """Unstack haplotype data."""
+def split_haplotypes(data, groupby):
+    """Split haplotypes by group."""
+    groups = data.reset_index().groupby(groupby)
+    return [group.set_index(data.index.names) for _, group in groups]
+
+
+def unstack_haplotypes(data):
+    """Unstack haplotypes."""
     return data.reset_index().set_index(["haplotype", "sample_name"]).unstack()
-
-
-def split_and_unstack(data):
-    """Split unstacked haplotype data."""
-    data_unstacked = unstack(data)
-    sample_names_lookup = [
-        list(data[data.replicate == replicate].sample_name.unique())
-        for replicate in data.replicate.unique()
-    ]
-    ancestors = sample_names_lookup[0]
-    replicate_frames = []
-    for sample_names in sample_names_lookup[1:]:
-        replicate_frames.append(
-            data_unstacked.frequency[ancestors + sorted(sample_names)]
-        )
-    return replicate_frames
