@@ -5,6 +5,8 @@ import pandas as pd
 
 from .transform import haplotype_to_list
 
+__all__ = ["mutations_from_haplotypes"]
+
 
 def mutations_from_haplotypes(
     data: pd.DataFrame,

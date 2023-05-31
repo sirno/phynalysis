@@ -4,6 +4,11 @@ import numpy as np
 import pandas as pd
 import pysam
 
+__all__ = [
+    "changes_from_read",
+    "changes_from_alignment",
+]
+
 
 def changes_from_read(
     reference: str,

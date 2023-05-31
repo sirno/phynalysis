@@ -37,3 +37,12 @@ def split_haplotypes(data, groupby):
 def unstack_haplotypes(data):
     """Unstack haplotypes."""
     return data.reset_index().set_index(["haplotype", "sample_name"]).unstack()
+
+
+def indexed_unstack(data):
+    """Unstack haplotypes and keep index order."""
+    return (
+        data.unstack()
+        .reindex(data.index.get_level_values(0).unique(), axis=0, level=0)
+        .reindex(data.index.get_level_values(1).unique(), axis=1, level=1)
+    )
