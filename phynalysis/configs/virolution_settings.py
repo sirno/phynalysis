@@ -1,3 +1,5 @@
+"""VirolutionSettings dataclass."""
+
 __all__ = [
     "Algebraic",
     "Linear",
