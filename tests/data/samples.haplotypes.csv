@@ -1,4 +1,4 @@
 index,barcode,local_id,haplotype,count,experiment,time,replicate,compartment
 0,sample_200_1,0,1:A->G,1,simulation,200,0,1
 1,sample_200_1,1,2:A->G,1,simulation,200,0,1
-1,sample_200_2,0,3:A->G,1,simulation,200,0,2
+2,sample_200_2,0,3:A->G,1,simulation,200,0,2

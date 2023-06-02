@@ -1,0 +1,3 @@
+barcode,experiment,time,replicate,compartment
+sample_200_1,simulation,200,0,1
+sample_200_2,simulation,200,0,2
