@@ -3,14 +3,14 @@ import logging
 
 import pandas as pd
 
-from ..transform import haplotype_to_mutations, haplotypes_to_phylip
+from ..transform import haplotype_to_dict, haplotypes_to_matrix
 
 
 def changes_from_haplotypes(haplotypes):
     """Retrieve all changes in haplotypes."""
     changes = []
     for haplotype in haplotypes:
-        mutations = haplotype_to_mutations(haplotype)
+        mutations = haplotype_to_dict(haplotype)
         for position, mutation in mutations:
             changes.append([position, mutation])
     return pd.DataFrame(changes, columns=["position", "mutation"]).sort_values(
@@ -40,15 +40,15 @@ def main(args):
     with open(args.reference, "r", encoding="utf8") as file_descriptor:
         reference = "".join(file_descriptor.read().splitlines()[1:])
 
-    sample_groups = haplotypes_data.groupby("sample_name")
+    sample_groups = haplotypes_data.groupby("barcode")
     merged_haplotypes = sample_groups.apply(merge_haplotypes)
-    sequences_phylip = haplotypes_to_phylip(reference, merged_haplotypes.values)
+    sequences_matrix = haplotypes_to_matrix(reference, merged_haplotypes.values)
 
     ids = merged_haplotypes.index
     longest_haplotype = max(map(len, ids))
     with open(args.output, "w", encoding="utf8") as file_descriptor:
-        file_descriptor.write(f"{len(ids)} {len(sequences_phylip[0])}\n")
-        for name, sequence in zip(ids, sequences_phylip):
+        file_descriptor.write(f"{len(ids)} {len(sequences_matrix[0])}\n")
+        for name, sequence in zip(ids, sequences_matrix):
             name = name.replace(":", "|").replace(";", ".").ljust(longest_haplotype)
             file_descriptor.write(f"{name} {sequence}\n")
 
