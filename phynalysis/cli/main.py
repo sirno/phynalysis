@@ -13,6 +13,7 @@ from .filter import filter
 from .haplotypes import haplotypes
 from .rescale import rescale
 from .sample import sample
+from .take import take
 
 
 class ParseTemplate(argparse.Action):
@@ -156,6 +157,19 @@ def main():
     )
 
     sample_parser.set_defaults(func=sample)
+
+    take_parser = subparsers.add_parser(
+        "take",
+        help="Take data.",
+        parents=[common_parser, log_parser],
+    )
+    take_parser.add_argument(
+        "--n-samples",
+        type=int,
+        default=0,
+        help="Number of samples.",
+    )
+    take_parser.set_defaults(func=take)
 
     rescale_parser = subparsers.add_parser(
         "rescale",
