@@ -54,7 +54,7 @@ def get_phylip(data, reference, template=None):
         template,
         n_tax=len(sequences_matrix),
         n_char=len(sequences_matrix[0]),
-        data=_format_data(data["id"], sequences_matrix),
+        data=_format_data([str(i) for i in data.index], sequences_matrix),
     )
 
 
