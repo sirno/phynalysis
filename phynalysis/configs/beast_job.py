@@ -20,6 +20,8 @@ class BeastJobConfig(SlotsSerializer):
     sample: str
     n_samples: int
 
+    ml_tree: bool = False
+
     query: str = ""
     phyn_seed: int = 42
     beast_seed: int = 42
