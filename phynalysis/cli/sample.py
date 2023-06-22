@@ -1,6 +1,7 @@
 """Sample subcommand."""
 
 import pandas as pd
+import logging
 
 
 def sample_balance(data, args):
@@ -33,12 +34,19 @@ def sample_balance(data, args):
 def sample_unique(data, args):
     """Sample unique haplotypes."""
     unique_haplotypes = data.groupby("haplotype")
+    if args.n_samples > len(unique_haplotypes):
+        logging.warning(
+            "Requested %s samples, but there are only %s unique haplotypes. Sampling all unique haplotypes.",
+            args.n_samples,
+            len(unique_haplotypes),
+        )
+        args.n_samples = len(unique_haplotypes)
     haplotype_sample = (
         unique_haplotypes["count"]
         .sum()
         .reset_index()
         .sample(
-            args.n_samples,
+            args.n_samples if args.n_samples else len(unique_haplotypes),
             weights="count",
             random_state=args.random_state,
             replace=args.replace_samples,
@@ -67,7 +75,7 @@ def sample(args):
     """Sample command main function."""
     data = pd.read_csv(args.input)
 
-    if args.n_samples == 0:
+    if args.n_samples == 0 and args.mode != "unique":
         data.to_csv(args.output, index=False)
         return
 
