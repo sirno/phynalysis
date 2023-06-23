@@ -53,6 +53,7 @@ class BeastJobConfig(SlotsSerializer):
             self.sample,
             self.encoded_query,
             str(self.n_samples),
+            "ml_tree" if self.ml_tree else "random_tree",
             self.encoded_seed,
         )
         return config_path
