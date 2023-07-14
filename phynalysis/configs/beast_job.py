@@ -20,7 +20,7 @@ class BeastJobConfig(SlotsSerializer):
     sample: str
     n_samples: int
 
-    ml_tree: bool = False
+    tree: str = "random"
 
     query: str = ""
     phyn_seed: int = 42
@@ -53,7 +53,7 @@ class BeastJobConfig(SlotsSerializer):
             self.sample,
             self.encoded_query,
             str(self.n_samples),
-            "ml_tree" if self.ml_tree else "random_tree",
+            f"{self.tree}_tree",
             self.encoded_seed,
         )
         return config_path
