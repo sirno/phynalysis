@@ -6,7 +6,9 @@ import re
 def _expand_path(path: str, fmt: str = None) -> list[str]:
     paths = []
     expansion_stack = [path]
-    list_regex = re.compile("\[(.*?)\]")
+
+    # find the innermost list
+    list_regex = re.compile("\[([^\[\]]*?)\]")
     while expansion_stack:
         path = expansion_stack.pop(0)
 
@@ -34,5 +36,8 @@ def _expand_path(path: str, fmt: str = None) -> list[str]:
                 item = str(item)
             expanded_path = re.sub(list_regex, item, path, count=1)
             expansion_stack.append(expanded_path)
+
+    # remove duplicates that may be created by nested lists
+    paths = list(set(paths))
 
     return sorted(paths)
