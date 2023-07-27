@@ -63,17 +63,28 @@ def haplotypes(args):
 
     logging.info("Computing haplotypes...")
     haplotype_counter = Counter()
+    haplotype_block_ids = {}
+
+    # reconstruct all haplotypes from mutations
     for group in changes.groupby("seq_id"):
         haplotype = sorted(
             list(group[1].position.astype(str) + ":" + group[1].mutation)
         )
         haplotype = ";".join(haplotype)
         haplotype_counter[haplotype] += 1
+        haplotype_block_ids[haplotype] = group[1].block_id.iloc[0]
+
+    # add consensus haplotype because it does not contain any changes
     haplotype_counter["consensus"] = n_seq - changes.seq_id.unique().size
+    haplotype_block_ids["consensus"] = None
+
     logging.info("Found %s haplotypes.", len(haplotype_counter))
 
     # create the haplotype dataframe
-    haplotypes = pd.DataFrame(haplotype_counter.items(), columns=["haplotype", "count"])
+    haplotypes = pd.DataFrame(
+        (haplotype, haplotype_block_ids[haplotype], haplotype_counter[haplotype]),
+        columns=["haplotype", "block_id", "count"],
+    )
     haplotypes.sort_values("count", inplace=True, ascending=False)
 
     # filter haplotypes with zero count

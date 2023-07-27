@@ -3,6 +3,7 @@
 import numpy as np
 import pandas as pd
 import pysam
+import re
 
 __all__ = [
     "changes_from_read",
@@ -12,7 +13,6 @@ __all__ = [
 
 def changes_from_read(
     reference: str,
-    seq_id: int,
     read: pysam.AlignedRead,
 ):
     """Retrieve list of changes from single read."""
@@ -40,7 +40,6 @@ def changes_from_read(
             # record changes
             changes += [
                 [
-                    seq_id,
                     position + offset,
                     reference_slice[offset] + "->" + read_slice[offset],
                     qualities[offset] if qualities else 255,
@@ -55,7 +54,6 @@ def changes_from_read(
         elif cigar[0] == 2:  # deletion
             changes.append(
                 [
-                    seq_id,
                     ref_pos,
                     "del" + str(cigar[1]),
                     0,
@@ -76,7 +74,6 @@ def changes_from_read(
             # record changes
             changes.append(
                 [
-                    seq_id,
                     ref_pos,
                     "i" + insertion,
                     quality if quality is not None else 255,
@@ -98,8 +95,20 @@ def changes_from_alignment(
     alignment: pysam.AlignmentFile,
 ):
     """Retrieve all changes in an alignment."""
+    BLOCK_ID_REGEX = re.compile(r"block_id=(\w+);")
+
     changes = []
     for seq_id, read in enumerate(alignment):
-        changes += changes_from_read(reference, seq_id, read)
+        block_id_match = BLOCK_ID_REGEX.search(read.query_name)
+        block_id = block_id_match.group(1) if block_id_match else None
+        changes += (seq_id, block_id, changes_from_read(reference, read))
 
-    return pd.DataFrame(changes, columns=["seq_id", "position", "mutation", "quality"])
+    # construct dataframe
+    changes = pd.DataFrame(changes, columns=["seq_id", "block_id", "changes"])
+    changes = changes.explode("changes").reset_index(drop=True)
+
+    # inplace modifications
+    changes[["mutation", "quality"]] = changes["changes"].apply(pd.Series)
+    changes.drop("changes", axis=1, inplace=True)
+
+    return changes
