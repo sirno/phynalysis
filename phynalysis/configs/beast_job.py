@@ -48,7 +48,7 @@ class BeastJobConfig(SlotsSerializer):
     def encoded_seed(self):
         return f"phyn_seed_{self.phyn_seed}_beast_seed_{self.beast_seed}"
 
-    def config_path(self):
+    def get_path(self):
         """Return the path to the config file."""
         config_path = os.path.join(
             self.template,

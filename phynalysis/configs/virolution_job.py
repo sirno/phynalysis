@@ -24,7 +24,7 @@ class VirolutionJobConfig(SlotsSerializer):
     time: str = "04-00"
     mem: str = "8G"
 
-    def config_path(self):
+    def get_path(self):
         """Return the path to the config file."""
         return self.path
 
