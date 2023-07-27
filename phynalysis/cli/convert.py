@@ -46,37 +46,39 @@ def convert(args):
     with open(args.reference, "r", encoding="utf8") as file_descriptor:
         reference = "".join(file_descriptor.read().splitlines()[1:])
 
+    id_field = "block_id" if "block_id" in haplotypes_data.columns else "name"
+    max_compartment = haplotypes_data.compartment.max()
+
     if args.merge_replicates:
         haplotype_groups = haplotypes_data.groupby("haplotype")
-        logging.info("Loaded %s haplotypes.", len(haplotype_groups))
 
-        haplotype_counts = haplotype_groups["count"].sum()
-        ids = haplotype_groups.apply(lambda group: group.name)
+        logging.info("Merged %s haplotypes.", len(haplotype_groups))
+        counts = haplotype_groups["count"].sum()
+        ids = haplotype_groups.apply(lambda group: group[id_field])
         haplotypes = haplotype_groups.apply(lambda group: group.name)
         times = haplotype_groups.apply(lambda group: group.time.min())
-
-        data = pd.DataFrame(
-            {
-                "id": ids,
-                "haplotype": haplotypes,
-                "count": haplotype_counts,
-                "time": times,
-            }
+        lineages = haplotype_groups.apply(
+            lambda group: group.compartment.mode()[0]
+            + max_compartment * group.replicate.mode()[0]
         )
     else:
-        data = haplotypes_data[["time", "compartment", "haplotype", "count"]].copy()
-        data["lineage"] = (
-            haplotypes_data.compartment
-            + haplotypes_data.compartment.max() * haplotypes_data.replicate
+        counts = data["count"]
+        haplotypes = data.haplotype
+        times = haplotypes_data.time
+        lineages = (
+            haplotypes_data.compartment + max_compartment * haplotypes_data.replicate
         )
-        data["lineage"] -= data.lineage.min()
-        data["id"] = (
-            data["haplotype"]
-            + "_"
-            + data["lineage"].astype(str)
-            + "_"
-            + data["time"].astype(str)
-        )
+        ids = data[id_field] + "_" + lineages.astype(str) + "_" + times.astype(str)
+
+    data = pd.DataFrame(
+        {
+            "id": ids,
+            "haplotype": haplotypes,
+            "count": counts,
+            "time": times,
+            "lineage": lineages - lineages.min(),
+        }
+    )
 
     # ensure each haplotype has a unique id
     data = data.reset_index(drop=True)
