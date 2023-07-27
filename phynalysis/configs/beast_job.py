@@ -13,6 +13,18 @@ from typing_extensions import Self
 
 from .utils import _expand_path
 
+_ENCODING = [
+    (", ", ","),
+    (" ", "_"),
+    ("<=", "le"),
+    (">=", "ge"),
+    ("<", "lt"),
+    (">", "gt"),
+    ("[", ""),
+    ("]", ""),
+    ("==", "eq"),
+]
+
 
 @dataclass(slots=True)
 class BeastJobConfig(SlotsSerializer):
@@ -32,21 +44,41 @@ class BeastJobConfig(SlotsSerializer):
     def encoded_query(self):
         if self.query == "":
             return "all"
-        return (
-            self.query.replace(", ", ",")
-            .replace(" ", "_")
-            .replace("<=", "le")
-            .replace(">=", "ge")
-            .replace("<", "lt")
-            .replace(">", "gt")
-            .replace("[", "")
-            .replace("]", "")
-            .replace("==", "eq")
-        )
+        query = self.query
+        for old, new in _ENCODING:
+            query = query.replace(old, new)
+        return query
 
     @property
     def encoded_seed(self):
         return f"phyn_seed_{self.phyn_seed}_beast_seed_{self.beast_seed}"
+
+    @classmethod
+    def from_path(cls, path: str) -> BeastJobConfig:
+        """Create a config from a path."""
+        splits = path.split("/")
+        beast_start = splits.index("beast")
+        virolution_start = splits.index("virolution")
+
+        template = "/".join(splits[beast_start:virolution_start])
+        sample = "/".join(splits[virolution_start:-5])
+
+        query = splits[-5]
+        n_samples = int(splits[-4])
+        tree = splits[-3].split("_")[0]
+
+        phyn_seed = splits[-2].split("_")[2]
+        beast_seed = splits[-2].split("_")[-1]
+
+        return cls(
+            template=template,
+            sample=sample,
+            query=query,
+            n_samples=int(n_samples),
+            tree=tree,
+            phyn_seed=int(phyn_seed),
+            beast_seed=int(beast_seed),
+        )
 
     def get_path(self):
         """Return the path to the config file."""
