@@ -96,7 +96,11 @@ class BeastJobConfig(SlotsSerializer):
         """Expand a path with list syntax into a list of paths."""
         template_paths = _expand_path(self.template)
         sample_paths = _expand_path(self.sample)
-        beast_seeds = range(self.beast_seed, self.beast_seed + self.beast_seeds) if self.beast_seeds else [self.beast_seed]
+        beast_seeds = (
+            range(self.beast_seed, self.beast_seed + self.beast_seeds)
+            if self.beast_seeds
+            else [self.beast_seed]
+        )
         return [
             BeastJobConfig.from_dict(
                 {

@@ -35,7 +35,10 @@ def test_beast_config_get_path():
         phyn_seed=10,
         beast_seed=123,
     )
-    assert config.get_path() == "template/sample/all/100/random_tree/phyn_seed_10_beast_seed_123"
+    assert (
+        config.get_path()
+        == "template/sample/all/100/random_tree/phyn_seed_10_beast_seed_123"
+    )
 
 
 def test_beast_config_expand_template_path():
@@ -63,7 +66,9 @@ def test_beast_config_expand_paths():
 
 
 def test_virolution_config_expand_path():
-    config = VirolutionJobConfig(path="path[1,2]", generations=100, compartments=1, sequence="reference.fasta")
+    config = VirolutionJobConfig(
+        path="path[1,2]", generations=100, compartments=1, sequence="reference.fasta"
+    )
     configs = config.expand_path()
     for idx, config in enumerate(configs):
         assert config.path == f"path{idx + 1}"
