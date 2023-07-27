@@ -82,7 +82,10 @@ def haplotypes(args):
 
     # create the haplotype dataframe
     haplotypes = pd.DataFrame(
-        (haplotype, haplotype_block_ids[haplotype], haplotype_counter[haplotype]),
+        (
+            (ht, haplotype_block_ids[ht], count)
+            for ht, count in haplotype_counter.items()
+        ),
         columns=["haplotype", "block_id", "count"],
     )
     haplotypes.sort_values("count", inplace=True, ascending=False)

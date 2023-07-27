@@ -101,14 +101,21 @@ def changes_from_alignment(
     for seq_id, read in enumerate(alignment):
         block_id_match = BLOCK_ID_REGEX.search(read.query_name)
         block_id = block_id_match.group(1) if block_id_match else None
-        changes += (seq_id, block_id, changes_from_read(reference, read))
+        read_changes = changes_from_read(reference, read)
+        if read_changes:
+            changes += [(seq_id, block_id, changes_from_read(reference, read))]
+
+    if not changes:
+        return pd.DataFrame(
+            [], columns=["seq_id", "block_id", "position", "mutation", "quality"]
+        )
 
     # construct dataframe
     changes = pd.DataFrame(changes, columns=["seq_id", "block_id", "changes"])
     changes = changes.explode("changes").reset_index(drop=True)
 
     # inplace modifications
-    changes[["mutation", "quality"]] = changes["changes"].apply(pd.Series)
+    changes[["position", "mutation", "quality"]] = [*changes["changes"]]
     changes.drop("changes", axis=1, inplace=True)
 
     return changes
