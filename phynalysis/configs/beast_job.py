@@ -26,6 +26,8 @@ class BeastJobConfig(SlotsSerializer):
     phyn_seed: int = 42
     beast_seed: int = 42
 
+    beast_seeds: int = 0
+
     @property
     def encoded_query(self):
         if self.query == "":
@@ -62,14 +64,17 @@ class BeastJobConfig(SlotsSerializer):
         """Expand a path with list syntax into a list of paths."""
         template_paths = _expand_path(self.template)
         sample_paths = _expand_path(self.sample)
+        beast_seeds = range(self.beast_seed, self.beast_seed + self.beast_seeds) if self.beast_seeds else [self.beast_seed]
         return [
             BeastJobConfig.from_dict(
                 {
                     **self.to_dict(),
                     "template": template,
                     "sample": sample,
+                    "beast_seed": beast_seed,
                 }
             )
             for template in template_paths
             for sample in sample_paths
+            for beast_seed in beast_seeds
         ]

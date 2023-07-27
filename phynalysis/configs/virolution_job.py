@@ -16,6 +16,7 @@ class VirolutionJobConfig(SlotsSerializer):
     path: str
     generations: int
     compartments: int
+    sequence: str
 
     array: str = ""
 
