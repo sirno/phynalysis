@@ -62,13 +62,19 @@ def convert(args):
             + max_compartment * group.replicate.mode()[0]
         )
     else:
-        counts = data["count"]
-        haplotypes = data.haplotype
+        counts = haplotypes_data["count"]
+        haplotypes = haplotypes_data.haplotype
         times = haplotypes_data.time
         lineages = (
             haplotypes_data.compartment + max_compartment * haplotypes_data.replicate
         )
-        ids = data[id_field] + "_" + lineages.astype(str) + "_" + times.astype(str)
+        ids = (
+            haplotypes_data[id_field]
+            + "_"
+            + lineages.astype(str)
+            + "_"
+            + times.astype(str)
+        )
 
     data = pd.DataFrame(
         {
