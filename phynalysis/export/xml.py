@@ -8,22 +8,24 @@ from .formatter import IncrementalFormatter
 def _sequence_data(data, sequences):
     return "\n".join(
         [
-            f'<sequence id="{row.id}" taxon="{name}" value="{sequence}" />'
-            for (name, row), sequence in zip(data.iterrows(), sequences)
+            f'<sequence id="{row.id}" taxon="{row.taxon}" value="{sequence}" />'
+            for (_name, row), sequence in zip(data.iterrows(), sequences)
         ]
     )
 
 
 def _time_data(data):
-    return ",\n".join([f"{name}={row.time:.2f}" for name, row in data.iterrows()])
+    return ",\n".join([f"{row.taxon}={row.time:.2f}" for name, row in data.iterrows()])
 
 
 def _count_data(data):
-    return ",\n".join([f"{name}={row['count']}" for name, row in data.iterrows()])
+    return ",\n".join([f"{row.taxon}={row['count']}" for name, row in data.iterrows()])
 
 
 def _type_data(data):
-    return ",\n".join([f"{name}={row['lineage']}" for name, row in data.iterrows()])
+    return ",\n".join(
+        [f"{row.taxon}={row['lineage']}" for name, row in data.iterrows()]
+    )
 
 
 def get_xml(data, reference, template=None):

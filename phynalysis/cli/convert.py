@@ -46,7 +46,7 @@ def convert(args):
     with open(args.reference, "r", encoding="utf8") as file_descriptor:
         reference = "".join(file_descriptor.read().splitlines()[1:])
 
-    id_field = "block_id" if "block_id" in haplotypes_data.columns else "name"
+    id_field = "block_id" if "block_id" in haplotypes_data.columns else "haplotype"
     max_compartment = haplotypes_data.compartment.max()
 
     if args.merge_replicates:
@@ -55,6 +55,7 @@ def convert(args):
         logging.info("Merged %s haplotypes.", len(haplotype_groups))
         counts = haplotype_groups["count"].sum()
         ids = haplotype_groups.apply(lambda group: group[id_field])
+        taxa = haplotype_groups.apply(lambda group: group[id_field])
         haplotypes = haplotype_groups.apply(lambda group: group.name)
         times = haplotype_groups.apply(lambda group: group.time.min())
         lineages = haplotype_groups.apply(
@@ -68,6 +69,7 @@ def convert(args):
         lineages = (
             haplotypes_data.compartment + max_compartment * haplotypes_data.replicate
         )
+        taxa = haplotypes_data[id_field]
         ids = (
             haplotypes_data[id_field]
             + "_"
@@ -82,6 +84,7 @@ def convert(args):
             "haplotype": haplotypes,
             "count": counts,
             "time": times,
+            "taxon": taxa,
             "lineage": lineages - lineages.min(),
         }
     )
