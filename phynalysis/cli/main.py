@@ -5,6 +5,8 @@ import sys
 from collections import defaultdict
 from pathlib import Path
 
+from . import beast_xml
+
 from .aggregate import aggregate
 from .ancestors import ancestors
 from .consensus import consensus
@@ -236,6 +238,34 @@ def main():
     aggregate_parser.add_argument("input", nargs="+", type=Path, help="Input files.")
     aggregate_parser.add_argument("-o", "--output", type=Path, help="Output file.")
     aggregate_parser.set_defaults(func=aggregate)
+
+    beast_xml_parser = subparsers.add_parser(
+        "beast-xml",
+        help="Generate BEAST XML file.",
+    )
+
+    beast_xml_instructions = beast_xml_parser.add_subparsers(
+        title="instructions",
+        dest="command",
+        required=True,
+    )
+
+    beast_xml_insert_tree_parser = beast_xml_instructions.add_parser(
+        "insert-tree",
+        help="Insert tree into BEAST XML file.",
+        parents=[log_parser],
+    )
+    beast_xml_insert_tree_parser.add_argument(
+        "beast-xml",
+        type=Path,
+        help="Beast xml file",
+    )
+    beast_xml_insert_tree_parser.add_argument(
+        "tree",
+        type=Path,
+        help="Tree file",
+    )
+    beast_xml_insert_tree_parser.set_defaults(func=beast_xml.insert_tree)
 
     args = parser.parse_args()
     logging.basicConfig(

@@ -5,6 +5,7 @@ from typing import Union
 
 import ete4
 
+
 def read_tree(path: Union[str, Path]) -> ete4.Tree:
     """Read tree from file."""
     newick_tree = Path(path).read_text()
