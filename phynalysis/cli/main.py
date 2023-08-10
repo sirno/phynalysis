@@ -178,7 +178,12 @@ def main():
         help="Rescale data columns.",
         parents=[common_parser, log_parser],
     )
-    rescale_parser.add_argument("--columns", nargs="+", help="Columns to rescale.")
+    rescale_parser.add_argument(
+        "--columns",
+        nargs="+",
+        help="Columns to rescale.",
+        default=[],
+    )
     rescale_parser.set_defaults(func=rescale)
 
     haplotypes_parser = subparsers.add_parser(

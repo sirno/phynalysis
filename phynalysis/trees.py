@@ -15,8 +15,17 @@ def read_tree(path: Union[str, Path]) -> ete4.Tree:
 def prune_tree(tree: ete4.Tree, taxa: list) -> ete4.Tree:
     """Prune tree and return strictly bifurcating tree."""
     tree = tree.copy()
+
     tree.prune(taxa)
+
+    # add zero length branches to internal nodes
+    for node in tree.traverse():
+        if not node.is_leaf:
+            node.add_child(name=node.name, dist=0)
+            node.name = ""
+
     tree.resolve_polytomy(recursive=True)
+
     return tree
 
 
