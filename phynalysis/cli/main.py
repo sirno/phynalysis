@@ -256,7 +256,7 @@ def main():
         parents=[log_parser],
     )
     beast_xml_insert_tree_parser.add_argument(
-        "beast-xml",
+        "xml",
         type=Path,
         help="Beast xml file",
     )

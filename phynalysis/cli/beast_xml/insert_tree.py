@@ -1,7 +1,5 @@
 """Insert a tree into beast xml file."""
 
-from pathlib import Path
-
 from lxml import etree
 from ete4 import Tree
 
@@ -10,11 +8,11 @@ from phynalysis.trees import prune_tree
 
 def insert_tree(args):
     # read tree
-    newick_data = Path(args.tree).read_text()
+    newick_data = args.tree.read_text()
     tree = Tree(newick_data)
 
     # read and parse template
-    template = etree.parse(Path(args.beast_xml).read_text())
+    template = etree.parse(args.xml)
     root = template.getroot()
 
     # read type set
@@ -26,7 +24,7 @@ def insert_tree(args):
         )
     )
 
-    tree = prune_tree(tree, type_dict)
+    tree = prune_tree(tree, list(type_dict.keys()))
 
     # TODO: check that all types are present in tree
 
@@ -57,5 +55,5 @@ def insert_tree(args):
 
     # overwrite xml
     xml_data = etree.tostring(root, pretty_print=True).decode("utf-8")
-    with open(args.beast_xml, "w") as xml_file:
+    with open(args.xml, "w") as xml_file:
         xml_file.write(xml_data)

@@ -26,7 +26,7 @@ _ENCODING = [
 ]
 
 
-@dataclass(slots=True)
+@dataclass(slots=True, frozen=True)
 class BeastJobConfig(SlotsSerializer):
     template: str
     sample: str
