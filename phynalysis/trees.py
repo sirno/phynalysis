@@ -20,9 +20,20 @@ def prune_tree(tree: ete4.Tree, taxa: list) -> ete4.Tree:
 
     # add zero length branches to internal nodes
     for node in tree.traverse():
+        # internal nodes are not pruned, so we need to remove their names if they are
+        # not in the taxa list
+        if node.name not in taxa:
+            node.name = ""
+            continue
+
+        # add zero length branches to internal nodes
         if not node.is_leaf:
             node.add_child(name=node.name, dist=0)
             node.name = ""
+
+    for node in tree.traverse():
+        if len(node.children) == 1:
+            node.delete()
 
     tree.resolve_polytomy(recursive=True)
 

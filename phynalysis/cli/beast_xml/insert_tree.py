@@ -26,15 +26,18 @@ def insert_tree(args):
     types = set(type_dict.keys())
 
     # check if all nodes are in the tree
-    leafs = set(node.name for node in tree.traverse() if node.name)
-    if types - leafs:
-        print(f"{types - leafs} are missing from tree before pruning.")
+    nodes = set(node.name for node in tree.traverse() if node.name)
+    if types - nodes:
+        print(f"{types - nodes} are missing from tree before pruning.")
 
     tree = prune_tree(tree, types)
 
-    leafs = set(leaf.name for leaf in tree)
-    if types - leafs:
-        print(f"{types - leafs} are missing from tree after pruning.")
+    nodes = set(node.name for node in tree.traverse() if node.name)
+    if types - nodes:
+        print(f"{types - nodes} are missing from tree after pruning.")
+
+    if nodes - types:
+        print(f"{nodes - types} are missing from type set after pruning.")
 
     # find and update init element
     init_element = root.find(".//init")
