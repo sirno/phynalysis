@@ -50,7 +50,8 @@ def insert_tree(args):
             "init",
             {
                 "spec": "beast.base.evolution.tree.TreeParser",
-                "id": "tree",
+                "id": "true_tree",
+                "initial": "@tree",
                 "IsLabelledNewick": "true",
                 "adjustTipHeights": "false",
                 "taxa": "@alignment",
@@ -60,9 +61,9 @@ def insert_tree(args):
         init_element.getparent().replace(init_element, new_element)
 
     # remove any tree element from xml
-    tree_element = root.find(".//tree")
-    if tree_element is not None:
-        tree_element.getparent().remove(tree_element)
+    # tree_element = root.find(".//tree")
+    # if tree_element is not None:
+    #     tree_element.getparent().remove(tree_element)
 
     # overwrite xml
     xml_data = etree.tostring(root, pretty_print=True).decode("utf-8")
