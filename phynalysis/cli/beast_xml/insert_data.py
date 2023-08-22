@@ -7,7 +7,7 @@ import pandas as pd
 
 from lxml import etree
 
-from phynalysis.export.formatter import haplotypes_to_sequences
+from ...transform import haplotypes_to_sequences
 from ..utils import write
 
 
