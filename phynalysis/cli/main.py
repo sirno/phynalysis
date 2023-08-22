@@ -255,6 +255,13 @@ def main():
         required=True,
     )
 
+    beast_xml_insert_data_parser = beast_xml_instructions.add_parser(
+        "insert-data",
+        help="Insert data into BEAST XML file.",
+        parents=[log_parser, common_parser],
+    )
+    beast_xml_insert_data_parser.set_defaults(func=beast_xml.insert_data)
+
     beast_xml_insert_tree_parser = beast_xml_instructions.add_parser(
         "insert-tree",
         help="Insert tree into BEAST XML file.",

@@ -42,9 +42,7 @@ def convert(args):
             sys.exit(1)
 
     haplotypes_data = pd.read_csv(args.input)
-
-    with open(args.reference, "r", encoding="utf8") as file_descriptor:
-        reference = "".join(file_descriptor.read().splitlines()[1:])
+    reference = "".join(open(args.reference).readlines())
 
     id_field = "block_id" if "block_id" in haplotypes_data.columns else "haplotype"
     max_compartment = haplotypes_data.compartment.max()
