@@ -28,7 +28,7 @@ def prune_tree(tree: ete4.Tree, taxa: list) -> ete4.Tree:
 
         # add zero length branches to internal nodes
         if not node.is_leaf:
-            node.add_child(name=node.name, dist=0)
+            node.add_child(name=node.name, dist=1)
             node.name = ""
 
     for node in tree.traverse():
