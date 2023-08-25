@@ -34,21 +34,20 @@ _suffixes = {
 }
 
 
-def convert(args):
-    """Convert command main function."""
-    for format in args.format:
-        if format not in _writers:
-            logging.error("Unknown format: %s", args.format)
-            sys.exit(1)
+def convert(
+    output: Path,
+    data: pd.DataFrame,
+    reference: str,
+    format: str,
+    merge_replicates: bool = False,
+    template: dict = None,
+):
+    """Convert data to desired format."""
+    id_field = "block_id" if "block_id" in data.columns else "haplotype"
+    max_compartment = data.compartment.max()
 
-    haplotypes_data = pd.read_csv(args.input)
-    reference = "".join(open(args.reference).readlines()[1:])
-
-    id_field = "block_id" if "block_id" in haplotypes_data.columns else "haplotype"
-    max_compartment = haplotypes_data.compartment.max()
-
-    if args.merge_replicates:
-        haplotype_groups = haplotypes_data.groupby("haplotype")
+    if merge_replicates:
+        haplotype_groups = data.groupby("haplotype")
 
         logging.info("Merged %s haplotypes.", len(haplotype_groups))
         counts = haplotype_groups["count"].sum()
@@ -61,20 +60,12 @@ def convert(args):
             + max_compartment * group.replicate.mode()[0]
         )
     else:
-        counts = haplotypes_data["count"]
-        haplotypes = haplotypes_data.haplotype
-        times = haplotypes_data.time
-        lineages = (
-            haplotypes_data.compartment + max_compartment * haplotypes_data.replicate
-        )
-        taxa = haplotypes_data[id_field]
-        ids = (
-            haplotypes_data[id_field]
-            + "_"
-            + lineages.astype(str)
-            + "_"
-            + times.astype(str)
-        )
+        counts = data["count"]
+        haplotypes = data.haplotype
+        times = data.time
+        lineages = data.compartment + max_compartment * data.replicate
+        taxa = data[id_field]
+        ids = data[id_field] + "_" + lineages.astype(str) + "_" + times.astype(str)
 
     data = pd.DataFrame(
         {
@@ -91,16 +82,36 @@ def convert(args):
     data = data.reset_index(drop=True)
     data["id"] += "_" + data.index.astype(str)
 
-    output_file = args.output
-    for format in args.format:
+    output_file = output
+    for format in format:
         # select template
         template = None
-        if args.template[format] is not None:
-            template = args.template[format]
+        if template[format] is not None:
+            template = template[format]
 
         # ensure output file has correct suffix
-        if isinstance(args.output, Path):
-            output_file = args.output.with_suffix(_suffixes[format])
+        if isinstance(output, Path):
+            output_file = output.with_suffix(_suffixes[format])
 
         # convert data to desired format
         _writers[format](output_file, data, reference, template=template)
+
+
+def convert_cmd(args):
+    """Convert command main function."""
+    for format in args.format:
+        if format not in _writers:
+            logging.error("Unknown format: %s", args.format)
+            sys.exit(1)
+
+    haplotypes_data = pd.read_csv(args.input)
+    reference = "".join(open(args.reference).readlines()[1:])
+
+    convert(
+        args.output,
+        haplotypes_data,
+        reference,
+        args.format,
+        args.merge_replicates,
+        args.template,
+    )

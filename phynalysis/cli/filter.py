@@ -7,15 +7,23 @@ import pandas as pd
 
 from .utils import write
 
+__all__ = ["filter_cmd", "filter"]
 
-def filter(args):
+
+def filter(frame: pd.DataFrame, query: str, filter_insertions: bool) -> pd.DataFrame:
+    """Filter haplotypes data based on condition."""
+    frame = frame.query(query)
+
+    if filter_insertions:
+        frame = frame[not frame.haplotype.str.contains("i")]
+
+    return frame
+
+
+def filter_cmd(args):
     """Filter command main function."""
     haplotypes_data = pd.read_csv(args.input)
 
-    if args.filter_insertions:
-        haplotypes_data = haplotypes_data[
-            not haplotypes_data.haplotype.str.contains("i")
-        ]
+    haplotypes_data = filter(haplotypes_data, args.query, args.filter_insertions)
 
-    haplotypes_data = haplotypes_data.query(args.query)
     haplotypes_data.to_csv(args.output, index=False)

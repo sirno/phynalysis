@@ -10,12 +10,13 @@ from . import beast_xml
 from .aggregate import aggregate
 from .ancestors import ancestors
 from .consensus import consensus
-from .convert import convert
-from .filter import filter
 from .haplotypes import haplotypes
-from .rescale import rescale
-from .sample import sample
-from .take import take
+
+from .convert import convert_cmd
+from .filter import filter_cmd
+from .rescale import rescale_cmd
+from .sample import sample_cmd
+from .take import take_cmd
 
 
 class ParseTemplate(argparse.Action):
@@ -108,7 +109,7 @@ def main():
         default=defaultdict(lambda: None),
         help="Template file.",
     )
-    convert_parser.set_defaults(func=convert)
+    convert_parser.set_defaults(func=convert_cmd)
 
     sample_parser = subparsers.add_parser(
         "sample",
@@ -158,7 +159,7 @@ def main():
         help="Sample `--n-samples` per group. If this is set, `--balance-weight` is ignored.",
     )
 
-    sample_parser.set_defaults(func=sample)
+    sample_parser.set_defaults(func=sample_cmd)
 
     take_parser = subparsers.add_parser(
         "take",
@@ -171,7 +172,7 @@ def main():
         default=0,
         help="Number of samples.",
     )
-    take_parser.set_defaults(func=take)
+    take_parser.set_defaults(func=take_cmd)
 
     rescale_parser = subparsers.add_parser(
         "rescale",
@@ -184,7 +185,7 @@ def main():
         help="Columns to rescale.",
         default=[],
     )
-    rescale_parser.set_defaults(func=rescale)
+    rescale_parser.set_defaults(func=rescale_cmd)
 
     haplotypes_parser = subparsers.add_parser(
         "haplotypes",
@@ -216,7 +217,7 @@ def main():
         action="store_true",
         help="Filter insertions.",
     )
-    filter_parser.set_defaults(func=filter)
+    filter_parser.set_defaults(func=filter_cmd)
 
     consensus_parser = subparsers.add_parser(
         "consensus",

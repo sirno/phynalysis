@@ -34,7 +34,7 @@ def test_filter():
         output=output_buffer,
         query="compartment == 1",
     )
-    filter.filter(args)
+    filter.filter_cmd(args)
     output_buffer.seek(0)
     output = pd.read_csv(output_buffer)
     expected_output = data.query("compartment == 1")
