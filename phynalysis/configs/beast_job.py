@@ -51,6 +51,7 @@ class BeastJobConfig(SlotsSerializer):
 
     @property
     def encoded_seed(self):
+        return f"ps_{self.phyn_seed}/bs_{self.beast_seed}"
         return f"phyn_seed_{self.phyn_seed}_beast_seed_{self.beast_seed}"
 
     @classmethod
@@ -61,13 +62,13 @@ class BeastJobConfig(SlotsSerializer):
         virolution_start = splits.index("virolution")
 
         template = "/".join(splits[beast_start:virolution_start])
-        sample = "/".join(splits[virolution_start:-5])
+        sample = "/".join(splits[virolution_start:-6])
 
-        query = splits[-5]
-        n_samples = int(splits[-4])
-        tree = splits[-3].split("_")[0]
+        query = splits[-6]
+        n_samples = int(splits[-5])
+        tree = splits[-4].split("_")[0]
 
-        phyn_seed = splits[-2].split("_")[2]
+        phyn_seed = splits[-3].split("_")[-1]
         beast_seed = splits[-2].split("_")[-1]
 
         return cls(
@@ -80,7 +81,7 @@ class BeastJobConfig(SlotsSerializer):
             beast_seed=int(beast_seed),
         )
 
-    def get_path(self):
+    def get_config_path(self):
         """Return the path to the config file."""
         config_path = os.path.join(
             self.template,
@@ -88,9 +89,14 @@ class BeastJobConfig(SlotsSerializer):
             self.encoded_query,
             str(self.n_samples),
             f"{self.tree}_tree",
-            self.encoded_seed,
+            f"ps_{self.phyn_seed}",
         )
         return config_path
+
+
+    def get_run_path(self):
+        """Return the path to the run."""
+        return os.path.join(self.get_config_path(), f"bs_{self.beast_seed}")
 
     def expand_paths(self) -> list[Self]:
         """Expand a path with list syntax into a list of paths."""
