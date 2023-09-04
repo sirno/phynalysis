@@ -2,6 +2,8 @@
 
 import pandas as pd
 
+__all__ = ["rescale_cmd", "rescale"]
+
 
 def rescale(data: pd.DataFrame, columns: list) -> pd.DataFrame:
     """Rescale data columns."""

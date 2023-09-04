@@ -1,9 +1,10 @@
 """Sample subcommand."""
 
 import pandas as pd
+import numpy as np
 import logging
 
-__all__ = ["sample_cmd", "sample_random", "sample_unique", "sample_balance"]
+__all__ = ["sample_cmd", "sample_random", "sample_unique", "sample_balance", "choose_random"]
 
 
 def sample_balance(
@@ -72,16 +73,41 @@ def sample_unique(
     return data
 
 
-def sample_random(data, n_samples: int, replace_samples: bool, random_state: int):
-    """Sample data randomly."""
+def sample_random(data, n_samples: int, random_state: int):
+    """Sample data randomly with repetition."""
     data = data.sample(
         n_samples,
         weights="count",
         random_state=random_state,
-        replace=replace_samples,
+        replace=True,
     )
 
     return data
+
+def choose_random(data: pd.DataFrame, n_samples: int):
+    """Choose random haplotypes without repetition of individuals"""
+    if n_samples >= data["count"].sum():
+        logging.warning(
+            "Requested %s samples, but there are only %s haplotypes. Sampling all haplotypes.",
+            n_samples,
+            data["count"].sum(),
+        )
+        return data
+
+    # sample indices without replacement by continuously updating the weights
+    weights = data["counts"]
+    indices = np.empty(n_samples, dtype=int)
+    for idx in range(n_samples):
+        sample_idx = np.random.choice(len(data), p=weights)
+        indices[idx] = sample_idx
+        weights[sample_idx] -= 1
+    indices, counts = np.unique(indices, return_counts=True)
+
+    sampled_data = data.copy()
+    sampled_data = sampled_data.iloc[indices]
+    sampled_data["count"] = counts
+
+    return sampled_data
 
 
 def sample_cmd(args):
