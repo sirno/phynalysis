@@ -3,7 +3,7 @@
 from lxml import etree
 from ete4 import Tree
 
-from phynalysis.trees import prune_tree
+from phynalysis.trees import prune_tree, enumerate_duplicates
 
 
 def insert_tree(args):
@@ -31,6 +31,8 @@ def insert_tree(args):
         print(f"{types - nodes} are missing from tree before pruning.")
 
     tree = prune_tree(tree, types)
+
+    tree = enumerate_duplicates(tree)
 
     nodes = set(node.name for node in tree.traverse() if node.name)
     if types - nodes:

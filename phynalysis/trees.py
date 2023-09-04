@@ -2,6 +2,7 @@
 
 from pathlib import Path
 from typing import Union
+from collections import defaultdict
 
 import ete4
 
@@ -38,6 +39,24 @@ def prune_tree(tree: ete4.Tree, taxa: list) -> ete4.Tree:
     tree.resolve_polytomy(recursive=True)
 
     return tree
+
+
+def enumerate_duplicates(tree: ete4.Tree) -> ete4.Tree:
+    """Enumerate duplicate names in tree."""
+    tree = tree.copy()
+
+    names = defaultdict(int)
+
+    for node in tree.traverse():
+        names[node.name] += 1
+
+    for node in tree.traverse():
+        if names[node.name] > 1:
+            node.name = f"{node.name}_{names[node.name]}"
+            names[node.name] -= 1
+
+    return tree
+
 
 
 def write_tree(tree: ete4.Tree, path: Union[str, Path]):

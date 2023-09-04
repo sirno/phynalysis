@@ -34,13 +34,23 @@ _suffixes = {
 }
 
 
+def enumerate_duplicates(data: pd.Series, id_field: str):
+    """Enumerate duplicate ids."""
+    counts = data[id_field].value_counts()
+    duplicates = counts[counts > 1].index
+    for duplicate in duplicates:
+        indices = data[data[id_field] == duplicate].index
+        for i, index in enumerate(indices):
+            data.loc[index, id_field] += f"_{i}"
+
+
 def convert(
     output: Path,
     data: pd.DataFrame,
     reference: str,
     format: str,
+    templates: dict,
     merge_replicates: bool = False,
-    template: dict = None,
 ):
     """Convert data to desired format."""
     id_field = "block_id" if "block_id" in data.columns else "haplotype"
@@ -64,7 +74,7 @@ def convert(
         haplotypes = data.haplotype
         times = data.time
         lineages = data.compartment + max_compartment * data.replicate
-        taxa = data[id_field]
+        taxa = enumerate_duplicates(data[id_field] + "_" + data.index.astype(str))
         ids = data[id_field] + "_" + lineages.astype(str) + "_" + times.astype(str)
 
     data = pd.DataFrame(
@@ -85,9 +95,7 @@ def convert(
     output_file = output
     for format in format:
         # select template
-        template = None
-        if template[format] is not None:
-            template = template[format]
+        template = templates[format]
 
         # ensure output file has correct suffix
         if isinstance(output, Path):
@@ -112,6 +120,6 @@ def convert_cmd(args):
         haplotypes_data,
         reference,
         args.format,
-        args.merge_replicates,
         args.template,
+        args.merge_replicates,
     )
