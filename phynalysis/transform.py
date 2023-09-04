@@ -33,9 +33,9 @@ Haplotype = Union[str, HaplotypeList, HaplotypeSet, HaplotypeDict]
 
 _ENCODING = {
     "A": 0,
-    "C": 1,
-    "G": 2,
-    "T": 3,
+    "T": 1,
+    "C": 2,
+    "G": 3,
 }
 
 
