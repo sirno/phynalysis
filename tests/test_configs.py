@@ -23,10 +23,10 @@ def test_beast_config_encode_seed():
         phyn_seed=10,
         beast_seed=123,
     )
-    assert config.encoded_seed == "phyn_seed_10_beast_seed_123"
+    assert config.encoded_seed == "ps_10/bs_123"
 
 
-def test_beast_config_get_path():
+def test_beast_config_get_config_path():
     """Test config path."""
     config = BeastJobConfig(
         template="template",
@@ -35,10 +35,19 @@ def test_beast_config_get_path():
         phyn_seed=10,
         beast_seed=123,
     )
-    assert (
-        config.get_path()
-        == "template/sample/all/100/random_tree/phyn_seed_10_beast_seed_123"
+    assert config.get_config_path() == "template/sample/all/100/random_tree/ps_10"
+
+
+def test_beast_config_get_run_path():
+    """Test config path."""
+    config = BeastJobConfig(
+        template="template",
+        sample="sample",
+        n_samples=100,
+        phyn_seed=10,
+        beast_seed=123,
     )
+    assert config.get_run_path() == "template/sample/all/100/random_tree/ps_10/bs_123"
 
 
 def test_beast_config_expand_template_path():
