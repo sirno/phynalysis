@@ -4,7 +4,13 @@ import pandas as pd
 import numpy as np
 import logging
 
-__all__ = ["sample_cmd", "sample_random", "sample_unique", "sample_balance", "choose_random"]
+__all__ = [
+    "sample_cmd",
+    "sample_random",
+    "sample_unique",
+    "sample_balance",
+    "choose_random",
+]
 
 
 def sample_balance(
@@ -83,6 +89,7 @@ def sample_random(data, n_samples: int, random_state: int):
     )
 
     return data
+
 
 def choose_random(data: pd.DataFrame, n_samples: int):
     """Choose random haplotypes without repetition of individuals"""

@@ -25,14 +25,14 @@ def insert_tree(args):
     )
     types = set(type_dict.keys())
 
+    tree = enumerate_duplicates(tree)
+
     # check if all nodes are in the tree
     nodes = set(node.name for node in tree.traverse() if node.name)
     if types - nodes:
         print(f"{types - nodes} are missing from tree before pruning.")
 
     tree = prune_tree(tree, types)
-
-    tree = enumerate_duplicates(tree)
 
     nodes = set(node.name for node in tree.traverse() if node.name)
     if types - nodes:

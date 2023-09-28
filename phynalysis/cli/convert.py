@@ -5,6 +5,7 @@ import sys
 
 from pathlib import Path
 
+import numpy as np
 import pandas as pd
 
 from phynalysis.export import (
@@ -34,14 +35,15 @@ _suffixes = {
 }
 
 
-def enumerate_duplicates(data: pd.Series, id_field: str):
+def enumerate_duplicates(data: pd.Series):
     """Enumerate duplicate ids."""
-    counts = data[id_field].value_counts()
+    counts = data.value_counts()
     duplicates = counts[counts > 1].index
     for duplicate in duplicates:
-        indices = data[data[id_field] == duplicate].index
+        indices = data[data == duplicate].index
         for i, index in enumerate(indices):
-            data.loc[index, id_field] += f"_{i}"
+            data.loc[index] += f"_{i}"
+    return data
 
 
 def convert(
@@ -70,12 +72,21 @@ def convert(
             + max_compartment * group.replicate.mode()[0]
         )
     else:
+        data.block_id = data.block_id + "_" + data.compartment.astype(str)
+        groups = data.groupby(["block_id"])
+
+        def _enumerate_duplicates(group):
+            rep = group.loc[np.repeat(group.index.values, group["count"])]
+            rep[id_field] = rep[id_field] + "_" + np.arange(len(rep)).astype(str)
+            return rep
+
+        data = groups.apply(_enumerate_duplicates)
         counts = data["count"]
         haplotypes = data.haplotype
         times = data.time
         lineages = data.compartment + max_compartment * data.replicate
-        taxa = enumerate_duplicates(data[id_field] + "_" + data.index.astype(str))
-        ids = data[id_field] + "_" + lineages.astype(str) + "_" + times.astype(str)
+        taxa = data[id_field]
+        ids = data[id_field]
 
     data = pd.DataFrame(
         {

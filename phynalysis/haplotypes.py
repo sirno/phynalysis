@@ -24,7 +24,7 @@ def compute_fitness(
 
 
 class Algebraic:
-    """Get a algebraic utility function."""
+    """Get an algebraic utility function."""
 
     def __init__(self, upper: int):
         self.upper = upper

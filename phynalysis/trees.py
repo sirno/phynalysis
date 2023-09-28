@@ -45,18 +45,19 @@ def enumerate_duplicates(tree: ete4.Tree) -> ete4.Tree:
     """Enumerate duplicate names in tree."""
     tree = tree.copy()
 
-    names = defaultdict(int)
+    names = defaultdict(lambda: 0)
 
     for node in tree.traverse():
-        names[node.name] += 1
+        if node.name is not None:
+            names[node.name] += 1
 
     for node in tree.traverse():
-        if names[node.name] > 1:
-            node.name = f"{node.name}_{names[node.name]}"
-            names[node.name] -= 1
+        if node.name is not None:
+            name = node.name
+            names[name] -= 1
+            node.name += f"_{names[name]}"
 
     return tree
-
 
 
 def write_tree(tree: ete4.Tree, path: Union[str, Path]):
