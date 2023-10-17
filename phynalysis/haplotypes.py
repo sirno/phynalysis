@@ -26,7 +26,7 @@ def compute_fitness(
 class Algebraic:
     """Get an algebraic utility function."""
 
-    def __init__(self, upper: int):
+    def __init__(self, upper: float):
         self.upper = upper
 
     def __call__(self, fitness: float):
