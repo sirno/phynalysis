@@ -140,6 +140,11 @@ def main():
         choices=["random", "balance", "unique"],
         help="Sampling mode. One of: random, balance, unique. Default: random.",
     )
+    sample_parser.add_argument(
+        "--no-warnings",
+        action="store_true",
+        help="Disable warnings during sampling.",
+    )
 
     # balance mode arguments
     sample_parser.add_argument(

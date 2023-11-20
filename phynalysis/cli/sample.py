@@ -49,11 +49,15 @@ def sample_balance(
 
 
 def sample_unique(
-    data: pd.DataFrame, n_samples: int, replace_samples: bool, random_state: int
+    data: pd.DataFrame,
+    n_samples: int,
+    replace_samples: bool,
+    random_state: int,
+    warnings: bool = True,
 ):
     """Sample unique haplotypes."""
     unique_haplotypes = data.groupby("haplotype")
-    if n_samples > len(unique_haplotypes):
+    if warnings and n_samples > len(unique_haplotypes):
         logging.warning(
             "Requested %s samples, but there are only %s unique haplotypes. Sampling all unique haplotypes.",
             n_samples,
@@ -79,13 +83,13 @@ def sample_unique(
     return data
 
 
-def sample_random(data, n_samples: int, random_state: int):
+def sample_random(data, n_samples: int, replace: bool, random_state: int):
     """Sample data randomly with repetition."""
     data = data.sample(
         n_samples,
         weights="count",
         random_state=random_state,
-        replace=True,
+        replace=replace,
     )
 
     return data
@@ -139,6 +143,7 @@ def sample_cmd(args):
                 args.n_samples,
                 args.replace_samples,
                 args.random_state,
+                not args.no_warnings,
             )
         case "balance":
             data = sample_balance(
