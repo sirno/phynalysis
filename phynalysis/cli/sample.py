@@ -57,12 +57,13 @@ def sample_unique(
 ):
     """Sample unique haplotypes."""
     unique_haplotypes = data.groupby("haplotype")
-    if warnings and n_samples > len(unique_haplotypes):
-        logging.warning(
-            "Requested %s samples, but there are only %s unique haplotypes. Sampling all unique haplotypes.",
-            n_samples,
-            len(unique_haplotypes),
-        )
+    if n_samples > len(unique_haplotypes):
+        if warnings:
+            logging.warning(
+                "Requested %s samples, but there are only %s unique haplotypes. Sampling all unique haplotypes.",
+                n_samples,
+                len(unique_haplotypes),
+            )
         n_samples = len(unique_haplotypes)
     haplotype_sample = (
         unique_haplotypes["count"]
@@ -95,18 +96,19 @@ def sample_random(data, n_samples: int, replace: bool, random_state: int):
     return data
 
 
-def choose_random(data: pd.DataFrame, n_samples: int):
+def choose_random(data: pd.DataFrame, n_samples: int, warnings: bool = True):
     """Choose random haplotypes without repetition of individuals"""
     if n_samples >= data["count"].sum():
-        logging.warning(
-            "Requested %s samples, but there are only %s haplotypes. Sampling all haplotypes.",
-            n_samples,
-            data["count"].sum(),
-        )
+        if warnings:
+            logging.warning(
+                "Requested %s samples, but there are only %s haplotypes. Sampling all haplotypes.",
+                n_samples,
+                data["count"].sum(),
+            )
         return data
 
     # sample indices without replacement by continuously updating the weights
-    weights = data["counts"]
+    weights = data["count"]
     indices = np.empty(n_samples, dtype=int)
     for idx in range(n_samples):
         sample_idx = np.random.choice(len(data), p=weights)
