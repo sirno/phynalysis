@@ -42,6 +42,17 @@ _ENCODING = {
     "3": 3,
 }
 
+_ENCODE_NT = {
+    0: "A",
+    1: "T",
+    2: "C",
+    3: "G",
+    "0": "A",
+    "1": "T",
+    "2": "C",
+    "3": "G",
+}
+
 
 def _parse_haplotype_to_list(haplotype: str) -> HaplotypeList:
     """Internal parser"""
@@ -162,9 +173,9 @@ def haplotypes_to_sequences(reference: str, haplotypes: list[Haplotype]) -> list
         # add all changes to sequence
         for position, mutation in haplotype:
             if "->" in mutation:
-                sequence[position] = mutation[-1]
+                sequence[position] = _ENCODE_NT[mutation[-1]]
             elif mutation.startswith("i"):
-                sequence[position] += mutation[1:]
+                sequence[position] += _ENOCDE_NT[mutation[1:]]
             else:
                 NotImplementedError(f"Unknown mutation type {mutation}.")
         if sequence:
