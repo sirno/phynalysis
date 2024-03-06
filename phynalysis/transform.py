@@ -180,7 +180,8 @@ def haplotypes_to_sequences(reference: str, haplotypes: list[Haplotype]) -> list
             if "->" in mutation:
                 sequence[position] = _ENCODE_NT[mutation[-1]]
             elif mutation.startswith("i"):
-                sequence[position] += _ENOCDE_NT[mutation[1:]]
+                for m in mutation[1:]:
+                    sequence[position] += _ENCODE_NT[m]
             else:
                 NotImplementedError(f"Unknown mutation type {mutation}.")
         if sequence:
