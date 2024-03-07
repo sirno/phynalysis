@@ -89,6 +89,12 @@ Distribution = Union[Exponential, Neutral]
 
 
 @dataclass(slots=True)
+class SingleHost(SlotsSerializer):
+    distribution: Distribution
+    utility: Utility
+
+
+@dataclass(slots=True)
 class FitnessModel(SlotsSerializer):
     distribution: Distribution
     utility: Utility
@@ -122,8 +128,8 @@ class PlanRecord(SlotsSerializer):
 class VirolutionSettings(SlotsSerializer):
     """Run settings."""
 
-    simulation_parameters: list[SimulationParameters]
-    simulation_plan: list[PlanRecord]
+    parameters: list[SimulationParameters]
+    schedule: list[PlanRecord]
 
     def sample_plan(self) -> Self:
         """Sample the plan."""
