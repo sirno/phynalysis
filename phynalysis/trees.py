@@ -36,7 +36,7 @@ def prune_tree(tree: ete4.Tree, taxa: list) -> ete4.Tree:
         if len(node.children) == 1:
             node.delete()
 
-    tree.resolve_polytomy(recursive=True)
+    tree.resolve_polytomy()
 
     return tree
 
