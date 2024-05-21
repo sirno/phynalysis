@@ -16,7 +16,6 @@ from phynalysis.export import (
     write_npy,
 )
 
-from .utils import write
 
 _writers = {
     "fasta": write_fasta,
@@ -72,8 +71,8 @@ def convert(
             + max_compartment * group.replicate.mode()[0]
         )
     else:
-        data.block_id = data.block_id + "_" + data.compartment.astype(str)
-        groups = data.groupby(["block_id"])
+        data[id_field] = data[id_field] + "_" + data.compartment.astype(str)
+        groups = data.groupby([id_field])
 
         def _enumerate_duplicates(group):
             rep = group.loc[np.repeat(group.index.values, group["count"])]
