@@ -15,7 +15,8 @@ def filter(frame: pd.DataFrame, query: str, filter_insertions: bool) -> pd.DataF
         frame = frame.query(query)
 
     if filter_insertions:
-        frame = frame[not frame.haplotype.str.contains("i")]
+        insertions = frame.haplotype.str.contains("i").fillna(False)
+        frame = frame[~insertions]
 
     return frame
 
