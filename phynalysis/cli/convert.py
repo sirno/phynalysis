@@ -71,12 +71,12 @@ def convert(
             + max_compartment * group.replicate.mode()[0]
         )
     else:
-        data[id_field] = data[id_field] + "_" + data.compartment.astype(str)
+        data["id"] = data[id_field] + "_" + data.compartment.astype(str)
         groups = data.groupby([id_field])
 
         def _enumerate_duplicates(group):
             rep = group.loc[np.repeat(group.index.values, group["count"])]
-            rep[id_field] = rep[id_field] + "_" + np.arange(len(rep)).astype(str)
+            rep["id"] = rep["id"] + "_" + np.arange(len(rep)).astype(str)
             return rep
 
         data = groups.apply(_enumerate_duplicates)
@@ -85,7 +85,7 @@ def convert(
         times = data.time
         lineages = data.compartment + max_compartment * data.replicate
         taxa = data[id_field]
-        ids = data[id_field]
+        ids = data["id"]
 
     data = pd.DataFrame(
         {
