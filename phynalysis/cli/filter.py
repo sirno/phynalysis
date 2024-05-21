@@ -5,14 +5,14 @@ Filter haplotypes data based on condition.
 
 import pandas as pd
 
-from .utils import write
 
 __all__ = ["filter_cmd", "filter"]
 
 
 def filter(frame: pd.DataFrame, query: str, filter_insertions: bool) -> pd.DataFrame:
     """Filter haplotypes data based on condition."""
-    frame = frame.query(query)
+    if query:
+        frame = frame.query(query)
 
     if filter_insertions:
         frame = frame[not frame.haplotype.str.contains("i")]
