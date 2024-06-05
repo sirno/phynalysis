@@ -22,15 +22,19 @@ def sample_balance(
     replace_samples: bool,
     random_state: int,
 ):
-    """Sample data with balanced groups."""
+    """Sample data with balanced groups.
+
+    DO NOT USE: This function is currently broken!
+    It will sample entire lines of data, and not individual haplotypes.
+    """
     groups = data.groupby(balance_groups, group_keys=False)
 
     if n_samples_per_group:
-        size = lambda group: n_samples
+        size = lambda group: n_samples  # noqa: E731
     elif balance_weights is None:
-        size = lambda group: n_samples // len(groups)
+        size = lambda group: n_samples // len(groups)  # noqa: E731
     else:
-        size = (
+        size = (  # noqa: E731
             lambda group: n_samples
             * balance_weights[str(group.name).replace(" ", "").strip("()")]
             // sum(balance_weights.values())
@@ -108,10 +112,10 @@ def choose_random(data: pd.DataFrame, n_samples: int, warnings: bool = True):
         return data
 
     # sample indices without replacement by continuously updating the weights
-    weights = data["count"]
+    weights = np.array(data["count"])
     indices = np.empty(n_samples, dtype=int)
     for idx in range(n_samples):
-        sample_idx = np.random.choice(len(data), p=weights)
+        sample_idx = np.random.choice(len(data), p=weights / weights.sum())
         indices[idx] = sample_idx
         weights[sample_idx] -= 1
     indices, counts = np.unique(indices, return_counts=True)
@@ -138,6 +142,12 @@ def sample_cmd(args):
                 args.n_samples,
                 args.replace_samples,
                 args.random_state,
+            )
+        case "choose":
+            data = choose_random(
+                data,
+                args.n_samples,
+                warnings=False,
             )
         case "unique":
             data = sample_unique(

@@ -1,6 +1,7 @@
 """Convert subcommand."""
 
 import logging
+import re
 import sys
 
 from pathlib import Path
@@ -51,10 +52,17 @@ def convert(
     reference: str,
     format: str,
     templates: dict,
+    id_format: str = None,
     merge_replicates: bool = False,
 ):
     """Convert data to desired format."""
     id_field = "block_id" if "block_id" in data.columns else "haplotype"
+
+    if id_format is None:
+        id_format = "{haplotype}_{compartment}"
+
+    id_fields = re.findall(r"\{(\w+)\}", id_format)
+
     max_compartment = data.compartment.max()
 
     if merge_replicates:
@@ -71,12 +79,12 @@ def convert(
             + max_compartment * group.replicate.mode()[0]
         )
     else:
-        data["id"] = data[id_field] + "_" + data.compartment.astype(str)
+        data["id"] = data.apply(lambda x: id_format.format(**x[id_fields]), axis=1)
         groups = data.groupby([id_field])
 
         def _enumerate_duplicates(group):
             rep = group.loc[np.repeat(group.index.values, group["count"])]
-            rep["id"] = rep["id"] + "_" + np.arange(len(rep)).astype(str)
+            rep["id"] = rep["id"] + "_u" + np.arange(len(rep)).astype(str)
             return rep
 
         data = groups.apply(_enumerate_duplicates)
@@ -131,5 +139,6 @@ def convert_cmd(args):
         reference,
         args.format,
         args.template,
+        args.id_format,
         args.merge_replicates,
     )

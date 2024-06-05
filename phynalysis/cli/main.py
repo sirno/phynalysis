@@ -109,6 +109,11 @@ def main():
         default=defaultdict(lambda: None),
         help="Template file.",
     )
+    convert_parser.add_argument(
+        "--id-format",
+        type=str,
+        default=None,
+    )
     convert_parser.set_defaults(func=convert_cmd)
 
     sample_parser = subparsers.add_parser(
@@ -137,8 +142,8 @@ def main():
         "--mode",
         type=str,
         default="random",
-        choices=["random", "balance", "unique"],
-        help="Sampling mode. One of: random, balance, unique. Default: random.",
+        choices=["random", "choose", "balance", "unique"],
+        help="Sampling mode. One of: random, choose, balance, unique. Default: random.",
     )
     sample_parser.add_argument(
         "--no-warnings",

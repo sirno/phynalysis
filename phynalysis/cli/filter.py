@@ -15,7 +15,8 @@ def filter(frame: pd.DataFrame, query: str, filter_insertions: bool) -> pd.DataF
         frame = frame.query(query)
 
     if filter_insertions:
-        insertions = frame.haplotype.str.contains("i").fillna(False)
+        pd.set_option("future.no_silent_downcasting", True)
+        insertions = frame.haplotype.str.contains("i").fillna(False).infer_objects()
         frame = frame[~insertions]
 
     return frame
