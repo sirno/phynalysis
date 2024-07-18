@@ -39,7 +39,9 @@ def get_fasta(data, reference, template=None):
     if template is None:
         template = DEFAULT_TEMPLATE
 
-    sequences_matrix = haplotypes_to_sequences(reference, data["haplotype"])
+    sequences_matrix = haplotypes_to_sequences(
+        reference, data["haplotype"], data["count"]
+    )
 
     return template.format(data=_format_data(data["id"], sequences_matrix)).strip("\n")
 

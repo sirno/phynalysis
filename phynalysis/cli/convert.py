@@ -56,12 +56,13 @@ def convert(
     merge_replicates: bool = False,
 ):
     """Convert data to desired format."""
-    id_field = "block_id" if "block_id" in data.columns else "haplotype"
-
     if id_format is None:
         id_format = "{haplotype}_{compartment}"
 
+    id_field = "block_id" if "block_id" in data.columns else "haplotype"
     id_fields = re.findall(r"\{(\w+)\}", id_format)
+
+    data.haplotype = data.haplotype.fillna("")
 
     max_compartment = data.compartment.max()
 
@@ -83,11 +84,15 @@ def convert(
         groups = data.groupby([id_field])
 
         def _enumerate_duplicates(group):
-            rep = group.loc[np.repeat(group.index.values, group["count"])]
+            reps = [
+                group.loc[np.repeat(idx, group["count"][idx])] for idx in group.index
+            ]
+            rep = pd.concat(reps)
             rep["id"] = rep["id"] + "_u" + np.arange(len(rep)).astype(str)
+            rep["count"] = np.ones(len(rep), dtype=int)
             return rep
 
-        data = groups.apply(_enumerate_duplicates)
+        data = groups.apply(_enumerate_duplicates).reset_index(drop=True)
         counts = data["count"]
         haplotypes = data.haplotype
         times = data.time

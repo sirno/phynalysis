@@ -167,10 +167,17 @@ def haplotype_to_string(haplotype: Haplotype) -> str:
     )
 
 
-def haplotypes_to_sequences(reference: str, haplotypes: list[Haplotype]) -> list[str]:
+def haplotypes_to_sequences(
+    reference: str,
+    haplotypes: list[Haplotype],
+    count: list[int] | None = None,
+) -> list[str]:
     """Convert haplotypes to matrix of aligned symbols."""
     sequences = []
-    for haplotype in haplotypes:
+    i = 0
+    if count is None:
+        count = [1] * len(haplotypes)
+    for haplotype, n in zip(haplotypes, count):
         # create list with characters for each position
         sequence = list(reference)
         # transform haplotype to list representation
@@ -184,8 +191,15 @@ def haplotypes_to_sequences(reference: str, haplotypes: list[Haplotype]) -> list
                     sequence[position] += _ENCODE_NT[m]
             else:
                 NotImplementedError(f"Unknown mutation type {mutation}.")
-        if sequence:
+
+        # avoid empty sequences
+        if not sequence:
+            continue
+
+        # add sequence n times
+        for _ in range(int(n)):
             sequences.append(sequence)
+            i += 1
 
     # determine longest possible sequence for each reference position
     longest = [max(map(len, [s[i] for s in sequences])) for i in range(len(reference))]
