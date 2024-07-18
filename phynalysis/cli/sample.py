@@ -19,13 +19,11 @@ def sample_balance(
     balance_weights: dict,
     n_samples: int,
     n_samples_per_group: bool,
-    replace_samples: bool,
-    random_state: int,
 ):
     """Sample data with balanced groups.
 
-    DO NOT USE: This function is currently broken!
-    It will sample entire lines of data, and not individual haplotypes.
+    Samples groups independently and balances the number of samples per group
+    according to the given weights. Samples will be drawn as in `choose_random`.
     """
     groups = data.groupby(balance_groups, group_keys=False)
 
@@ -40,14 +38,7 @@ def sample_balance(
             // sum(balance_weights.values())
         )
 
-    data = groups.apply(
-        lambda group: group.sample(
-            n=size(group),
-            weights="count",
-            replace=replace_samples,
-            random_state=random_state,
-        )
-    )
+    data = groups.apply(lambda group: choose_random(group, size(group), warnings=True))
 
     return data
 
@@ -164,8 +155,6 @@ def sample_cmd(args):
                 args.balance_weights,
                 args.n_samples,
                 args.n_samples_per_group,
-                args.replace_samples,
-                args.random_state,
             )
 
     data.to_csv(args.output, index=False)
