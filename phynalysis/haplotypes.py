@@ -1,4 +1,14 @@
-"""Functions for analyzing haplotypes."""
+"""Functions for analyzing haplotypes.
+
+## Example:
+
+```python
+table = FitnessTable.load("fitness_table.npy")
+epistasis = EpistasisMap.load("epistasis_map.npy")
+
+fitness_function = FitnessFunction([table, epistasis])
+fitness = fitness_function.compute_fitness(haplotype)
+"""
 
 from itertools import product
 from typing import Callable
@@ -7,8 +17,10 @@ import numpy as np
 
 from .transform import Haplotype
 
+__all__ = ["FitnessFunction", "FitnessTable", "EpistasisMap", "Algebraic"]
 
-class Fitness:
+
+class FitnessFunction:
     """Get a fitness table utility function."""
 
     def __init__(
@@ -35,7 +47,14 @@ class FitnessTable:
     """Get a fitness table utility function."""
 
     def __init__(self, table: np.ndarray):
+        if isinstance(table, str):
+            raise ValueError("Use `load` method to load a table from a file.")
+
         self.table = table
+
+    @classmethod
+    def load(cls, path: str):
+        return cls(np.load(path))
 
     def compute_fitness(self, haplotype: Haplotype) -> float:
         return np.prod(self.table[pos][mut] for pos, (_, mut) in haplotype)
@@ -45,7 +64,20 @@ class EpistasisMap:
     """Get an epistasis table utility function."""
 
     def __init__(self, map: dict):
+        if isinstance(map, str):
+            raise ValueError("Use `load` method to load a table from a file.")
+
         self.map = map
+
+    @classmethod
+    def load(cls, path: str):
+        table = np.load(path)
+        return cls(
+            {
+                (pos1, mut1, pos2, mut2): value
+                for (pos1, mut1, pos2, mut2, value) in table
+            }
+        )
 
     def compute_fitness(self, haplotype: Haplotype) -> float:
         iterator = product(haplotype, haplotype)
