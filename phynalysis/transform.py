@@ -6,6 +6,9 @@ Glossary:
         - as a list: [(position, mutation), (position, mutation), ...]
         - as a set: {(position, mutation), (position, mutation), ...}
         - as a dictionary: {position: mutation, position: mutation, ...}
+    - change: A tuple of position and mutation
+    - mutation: A string representing a change
+        format: "<reference>-><mutation>"
     - haplotypes: A list of haplotypes
 """
 
@@ -19,11 +22,15 @@ __all__ = [
     "haplotypes_to_frequencies",
 ]
 
+from typing import Tuple, Union
+
 import numpy as np
 
-from typing import Union
+Substitution = tuple
+Insertion = str
 
-Change = tuple[int, str]
+Mutation = Union[Substitution, Insertion]
+Change = Tuple[int, str]
 
 HaplotypeList = list[Change]
 HaplotypeSet = set[Change]
@@ -59,10 +66,52 @@ _ENCODE_NT = {
 }
 
 
-def _parse_haplotype_to_list(haplotype: str) -> HaplotypeList:
+def _encoder(change: Change) -> Change:
+    """Internal encoder."""
+    return (change[0], _ENCODING[change[1]])
+
+
+def _parse_mutation(mutation: str) -> Mutation:
+    """Internal parser for Mutation."""
+
+    # if mutation is a substitution we store it as a tuple
+    if "->" in mutation:
+        ref, mut = mutation.split("->")
+        return _ENCODING[ref], _ENCODING[mut]
+
+    # if mutation is an insertion we store it as a string
+    return mutation
+
+
+def _parse_change(change: str) -> Change:
+    """Internal parser for Change."""
+    position, mutation = change.split(":")
+    return int(position), _parse_mutation(mutation)
+
+
+def _parse_haplotype_to_iter(haplotype: str) -> HaplotypeList:
     """Internal parser"""
-    changes = [change.split(":") for change in haplotype.split(";")]
-    return [(int(change[0]), change[1]) for change in changes]
+    return map(_parse_change, haplotype.split(";"))
+
+
+def _mutation_to_string(mutation: Mutation) -> str:
+    """Get the string representation of a mutation."""
+    if isinstance(mutation, Substitution):
+        return "{}->{}".format(_ENCODE_NT[mutation[0]], _ENCODE_NT[mutation[1]])
+    if isinstance(mutation, Insertion):
+        return "i" + "".join(_ENCODE_NT[m] for m in mutation[1:])
+    raise NotImplementedError(f"Unknown mutation type {mutation}.")
+
+
+def _change_to_string(change: Change) -> str:
+    """Get the string representation of a change."""
+    position, mutation = change
+    return "{}:{}".format(position, _mutation_to_string(mutation))
+
+
+def _get_position(change: Change) -> int:
+    """Get the position of a change."""
+    return change[0]
 
 
 def haplotype_to_list(haplotype: Haplotype) -> HaplotypeList:
@@ -83,13 +132,13 @@ def haplotype_to_list(haplotype: Haplotype) -> HaplotypeList:
 
     # parse haplotype if it is a string
     if isinstance(haplotype, str):
-        return list(_parse_haplotype_to_list(haplotype))
+        return list(_parse_haplotype_to_iter(haplotype))
 
     # convert dict to iterator over items
     if isinstance(haplotype, dict):
-        return sorted(list(haplotype.items()), key=lambda x: x[0])
+        return sorted(list(haplotype.items()), key=_get_position)
 
-    return sorted(list(haplotype), key=lambda x: x[0])
+    return sorted(list(haplotype), key=_get_position)
 
 
 def haplotype_to_set(haplotype: Haplotype) -> HaplotypeSet:
@@ -110,7 +159,7 @@ def haplotype_to_set(haplotype: Haplotype) -> HaplotypeSet:
 
     # parse haplotype if it is a string
     if isinstance(haplotype, str):
-        return set(_parse_haplotype_to_list(haplotype))
+        return set(_parse_haplotype_to_iter(haplotype))
 
     # convert dict to iterator over items
     if isinstance(haplotype, dict):
@@ -137,7 +186,7 @@ def haplotype_to_dict(haplotype: Haplotype) -> HaplotypeDict:
 
     # parse haplotype if it is a string
     if isinstance(haplotype, str):
-        return dict(_parse_haplotype_to_list(haplotype))
+        return dict(_parse_haplotype_to_iter(haplotype))
 
     return dict(haplotype)
 
@@ -163,7 +212,7 @@ def haplotype_to_string(haplotype: Haplotype) -> str:
         haplotype = haplotype.items()
 
     return ";".join(
-        f"{pos}:{mutation}" for pos, mutation in sorted(haplotype, key=lambda x: x[0])
+        _change_to_string(change) for change in sorted(haplotype, key=_get_position)
     )
 
 
@@ -184,13 +233,17 @@ def haplotypes_to_sequences(
         haplotype = haplotype_to_list(haplotype)
         # add all changes to sequence
         for position, mutation in haplotype:
-            if "->" in mutation:
-                sequence[position] = _ENCODE_NT[mutation[-1]]
-            elif mutation.startswith("i"):
+            if isinstance(mutation, Substitution):
+                sequence[position] = _ENCODE_NT[mutation[1]]
+            elif isinstance(mutation, Insertion):
+                print(mutation)
+                assert mutation.startswith("i")
                 for m in mutation[1:]:
                     sequence[position] += _ENCODE_NT[m]
             else:
-                NotImplementedError(f"Unknown mutation type {mutation}.")
+                NotImplementedError(
+                    f"Unknown mutation type ({type(mutation)}) {mutation}."
+                )
 
         # avoid empty sequences
         if not sequence:
