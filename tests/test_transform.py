@@ -1,18 +1,17 @@
 """Test transform module."""
 
 from phynalysis.transform import (
+    haplotype_to_dict,
     haplotype_to_list,
     haplotype_to_set,
-    haplotype_to_dict,
     haplotype_to_string,
     haplotypes_to_sequences,
 )
 
-
 haplotype_string = "10:G->A;15:iATTA;3004:G->A"
-haplotype_list = [(10, "G->A"), (15, "iATTA"), (3004, "G->A")]
-haplotype_set = set([(10, "G->A"), (15, "iATTA"), (3004, "G->A")])
-haplotype_dict = {10: "G->A", 15: "iATTA", 3004: "G->A"}
+haplotype_list = [(10, (3, 0)), (15, "iATTA"), (3004, (3, 0))]
+haplotype_set = set([(10, (3, 0)), (15, "iATTA"), (3004, (3, 0))])
+haplotype_dict = {10: (3, 0), 15: "iATTA", 3004: (3, 0)}
 
 
 def test_haplotype_to_list():
@@ -53,8 +52,8 @@ haplotypes = [
     "0:A->G",
     "consensus",
     "1:iTTT",
-    set([(3, "A->G")]),
-    [(2, "A->G")],
+    set([(3, (0, 3))]),
+    [(2, (0, 3))],
 ]
 
 
