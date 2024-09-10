@@ -5,23 +5,30 @@ from typing import Callable
 
 import numpy as np
 
-from .transform import _ENCODING, Haplotype, haplotype_to_list, _encoder
+from .transform import Haplotype
 
 
-def compute_fitness(
-    haplotype: Haplotype,
-    fitness_table: np.ndarray,
-    utility: Callable[[float], float] | None = None,
-):
-    """Get the fitness of a haplotype."""
-    haplotype = haplotype_to_list(haplotype)
+class Fitness:
+    """Get a fitness table utility function."""
 
-    if utility is None:
-        utility = lambda x: x
+    def __init__(
+        self,
+        fitness_providers: list,
+        utility: Callable[[float], float] | None = None,
+    ):
+        self.iter = iter
+        self.utility = utility
 
-    return utility(
-        np.prod([fitness_table[pos][_ENCODING[mut[-1]]] for pos, mut in haplotype])
-    )
+    def compute_fitness(self, haplotype: Haplotype) -> float:
+        fitness = np.prod(
+            fitness_provider.compute_fitness(haplotype)
+            for fitness_provider in self.fitness_providers
+        )
+
+        if self.utility is not None:
+            fitness = self.utility(fitness)
+
+        return fitness
 
 
 class FitnessTable:
@@ -31,7 +38,7 @@ class FitnessTable:
         self.table = table
 
     def compute_fitness(self, haplotype: Haplotype) -> float:
-        return np.prod(self.table[pos][mut[-1]] for pos, mut in map(_encoder, haplotype))
+        return np.prod(self.table[pos][mut] for pos, (_, mut) in haplotype)
 
 
 class EpistasisMap:
@@ -42,8 +49,10 @@ class EpistasisMap:
 
     def compute_fitness(self, haplotype: Haplotype) -> float:
         iterator = product(haplotype, haplotype)
-        return np.prod(self.map.get((pos1, mut1[_
-        return 1
+        return np.prod(
+            self.map.get((pos1, mut1, pos2, mut2), 1)
+            for (pos1, (_, mut1)), (pos2, (_, mut2)) in iterator
+        )
 
 
 class Algebraic:
