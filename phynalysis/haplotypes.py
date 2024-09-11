@@ -28,13 +28,15 @@ class FitnessFunction:
         fitness_providers: list,
         utility: Callable[[float], float] | None = None,
     ):
-        self.iter = iter
+        self.fitness_providers = fitness_providers
         self.utility = utility
 
     def compute_fitness(self, haplotype: Haplotype) -> float:
         fitness = np.prod(
-            fitness_provider.compute_fitness(haplotype)
-            for fitness_provider in self.fitness_providers
+            [
+                fitness_provider.compute_fitness(haplotype)
+                for fitness_provider in self.fitness_providers
+            ]
         )
 
         if self.utility is not None:
@@ -57,7 +59,7 @@ class FitnessTable:
         return cls(np.load(path))
 
     def compute_fitness(self, haplotype: Haplotype) -> float:
-        return np.prod(self.table[pos][mut] for pos, (_, mut) in haplotype)
+        return np.prod([self.table[pos][mut] for pos, (_, mut) in haplotype])
 
 
 class EpistasisMap:
@@ -82,8 +84,10 @@ class EpistasisMap:
     def compute_fitness(self, haplotype: Haplotype) -> float:
         iterator = product(haplotype, haplotype)
         return np.prod(
-            self.map.get((pos1, mut1, pos2, mut2), 1)
-            for (pos1, (_, mut1)), (pos2, (_, mut2)) in iterator
+            [
+                self.map.get((pos1, mut1, pos2, mut2), 1)
+                for (pos1, (_, mut1)), (pos2, (_, mut2)) in iterator
+            ]
         )
 
 
