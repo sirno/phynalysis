@@ -236,7 +236,6 @@ def haplotypes_to_sequences(
             if isinstance(mutation, Substitution):
                 sequence[position] = _ENCODE_NT[mutation[1]]
             elif isinstance(mutation, Insertion):
-                print(mutation)
                 assert mutation.startswith("i")
                 for m in mutation[1:]:
                     sequence[position] += _ENCODE_NT[m]

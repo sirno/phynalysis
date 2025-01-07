@@ -3,7 +3,6 @@
 import logging
 import re
 import sys
-
 from pathlib import Path
 
 import numpy as np
@@ -12,11 +11,10 @@ import pandas as pd
 from phynalysis.export import (
     write_fasta,
     write_nexus,
+    write_npy,
     write_phylip,
     write_xml,
-    write_npy,
 )
-
 
 _writers = {
     "fasta": write_fasta,
@@ -57,7 +55,7 @@ def convert(
 ):
     """Convert data to desired format."""
     if id_format is None:
-        id_format = "{haplotype}_{compartment}"
+        id_format = "{block_id}_{compartment}"
 
     id_field = "block_id" if "block_id" in data.columns else "haplotype"
     id_fields = re.findall(r"\{(\w+)\}", id_format)
@@ -88,7 +86,7 @@ def convert(
                 group.loc[np.repeat(idx, group["count"][idx])] for idx in group.index
             ]
             rep = pd.concat(reps)
-            rep["id"] = rep["id"] + "_u" + np.arange(len(rep)).astype(str)
+            rep["id"] = rep["id"] + "_" + np.arange(len(rep)).astype(str)
             rep["count"] = np.ones(len(rep), dtype=int)
             return rep
 
@@ -97,7 +95,7 @@ def convert(
         haplotypes = data.haplotype
         times = data.time
         lineages = data.compartment + max_compartment * data.replicate
-        taxa = data[id_field]
+        taxa = data["id"]
         ids = data["id"]
 
     data = pd.DataFrame(
