@@ -79,7 +79,7 @@ def convert(
         )
     else:
         data["id"] = data.apply(lambda x: id_format.format(**x[id_fields]), axis=1)
-        groups = data.groupby([id_field])
+        groups = data.groupby("id")
 
         def _enumerate_duplicates(group):
             reps = [
@@ -110,8 +110,8 @@ def convert(
     )
 
     # ensure each haplotype has a unique id
-    data = data.reset_index(drop=True)
-    data["id"] += "_" + data.index.astype(str)
+    # data = data.reset_index(drop=True)
+    # data["id"] += "_" + data.index.astype(str)
 
     output_file = output
     for format in format:
