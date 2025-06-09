@@ -79,7 +79,7 @@ def convert(
         )
     else:
         data["id"] = data.apply(lambda x: id_format.format(**x[id_fields]), axis=1)
-        groups = data.index("id").groupby(level="id")
+        groups = data.set_index("id").groupby(level="id")
 
         def _enumerate_duplicates(group):
             # reset index to keep the code compatible with older pandas versions
