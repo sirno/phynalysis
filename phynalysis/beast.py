@@ -1,8 +1,8 @@
 """Beast analysis module."""
 
 import logging
-import re
 import math
+import re
 from collections import Counter
 from pathlib import Path
 from typing import Union
@@ -34,7 +34,7 @@ def read_beast_log(log_file: Union[str, Path], burn_in: Union[int, float] = 0):
 
 def _extract_mean_rates(log_data: pd.DataFrame) -> pd.DataFrame:
     """Extract mean rates from log data."""
-    mean_rates = log_data.filter(regex="migration_model\.rateMatrix_").mean()
+    mean_rates = log_data.filter(regex=r"migration_model\.rateMatrix_").mean()
     indices = mean_rates.index.str.extract(
         r"migration_model\.rateMatrix_(?P<source>\d+)_(?P<target>\d+)"
     )
@@ -131,7 +131,7 @@ def count_clade_types(trees_file: Union[str, Path]):
     if not trees_file.endswith(".nwk"):
         logging.warning("Trees file should be in Newick format.")
 
-    pattern = re.compile('&type="(?P<type>\d+)"')
+    pattern = re.compile(r'&type="(?P<type>\d+)"')
     trees = Phylo.parse(trees_file, "newick")
     type_counts = pd.DataFrame()
 
