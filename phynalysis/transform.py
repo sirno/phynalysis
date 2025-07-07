@@ -123,7 +123,7 @@ def haplotype_to_list(haplotype: Haplotype) -> HaplotypeList:
         a list of sorted changes in the haplotype
     """
     # reference sequence
-    if not haplotype or haplotype == "consensus":
+    if not haplotype or haplotype in ["consensus", "wt", "wildtype"]:
         return list()
 
     # do nothing when haplotype is already a list
@@ -150,7 +150,7 @@ def haplotype_to_set(haplotype: Haplotype) -> HaplotypeSet:
         a set of changes in the haplotype
     """
     # reference sequence
-    if not haplotype or haplotype == "consensus":
+    if not haplotype or haplotype in ["consensus", "wt", "wildtype"]:
         return set()
 
     # do nothing when haplotype is already a set
@@ -177,7 +177,7 @@ def haplotype_to_dict(haplotype: Haplotype) -> HaplotypeDict:
         a dictionary of changes in the haplotype
     """
     # reference sequence
-    if not haplotype or haplotype == "consensus":
+    if not haplotype or haplotype in ["consensus", "wt", "wildtype"]:
         return dict()
 
     # do nothing when haplotype is already a dict
